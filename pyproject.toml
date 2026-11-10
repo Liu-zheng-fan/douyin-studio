@@ -33,6 +33,7 @@ dy-qc = "studio.qc:main"
 dy-outbox = "studio.outbox:main"
 dy-daily = "ops.daily:main"
 dy-autopsy = "ops.autopsy:main"
+dy-gates = "ops.gates:main"
 dy-review = "ops.review:main"
 
 [tool.setuptools]

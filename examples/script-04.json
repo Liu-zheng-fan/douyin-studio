@@ -7,7 +7,7 @@
   "cover_title": "我不吃饭\n但卖装饭的盆",
   "cover_kicker": "第 1 条",
   "cover_image": "examples/assets/whale-girl.png",
-  "ai_generated": true,
+  "ai_generated": true,"hook_type": "反常识", "golden": "我不吃饭，但我卖装饭的盆",
   "fps": 30,
   "voice": "narrator",
   "rate": "-4%",

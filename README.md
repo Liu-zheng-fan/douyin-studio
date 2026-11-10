@@ -112,6 +112,7 @@ script.json
 | `studio/outbox.py` | 审批箱（本地 HTTP 服务 + decision.json） |
 | `douyin/publish.py` | 人工发布包 / 开放平台接口（默认 dry-run） |
 | `ops/daily.py` | 每日编排：渲染→质检→投递，幂等 + 未审批则停产 |
+| `ops/gates.py` | 脚本闸门：HOOK-X / 300 分评分 / 反平庸检测 |
 | `ops/autopsy.py` | 爆款拉片：十字段记录 + 聚合 |
 | `ops/ledger.py` `ops/review.py` | 台账与单变量复盘 |
 
@@ -129,6 +130,7 @@ script.json
 | 投递审批 | `python -m studio.outbox pack <dist>` |
 | 打开审批页 | `python -m studio.outbox serve --port 8787` |
 | 每日编排 | `python -m ops.daily`（幂等） |
+| 脚本评分 | `python -m ops.gates <script.json>` |
 | 拉片记录 | `python -m ops.autopsy add --id x --duration 30 --cuts 15` |
 | 拉片结论 | `python -m ops.autopsy report` |
 | 记数据 | `python -m ops.ledger add --title x --plays 320` |
@@ -163,7 +165,7 @@ script.json
 ## 测试
 
 ```bash
-python -m pytest -q      # 41 个用例：动画内核 / 合规 / 镜头 / 质检
+python -m pytest -q      # 48 个用例：动画内核 / 合规 / 镜头 / 质检 / 脚本闸门
 ```
 
 ---

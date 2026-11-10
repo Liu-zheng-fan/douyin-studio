@@ -103,6 +103,22 @@ def build(
     if blocks and not force:
         raise SystemExit(f"\n有 {len(blocks)} 处阻断项，未渲染。确认要发就加 --force，并自行承担平台风险。")
 
+    # 1.5) 脚本闸门（内容分，不达标默认只告警）
+    gate = None
+    try:
+        from ops import gates as gate_mod
+        gate = gate_mod.check(script)
+        print(f"脚本评分：{gate['score']}/{gate['max']}"
+              + ("" if gate["pass"] else f"（低于 {gate['threshold']}，建议重写）"))
+        if gate["fails"]:
+            print("  待改：" + "；".join(gate["fails"]))
+    except Exception as exc:  # 没装 ops 包也不该挡住渲染
+        print(f"[跳过] 脚本闸门不可用：{exc}")
+
+    if gate and not gate["pass"] and (force or script.get("strict_gates")):
+        raise SystemExit(f"\n脚本评分 {gate['score']}/{gate['max']} 未达阈值，未渲染。"
+                         f"改完再跑，或加 --force 强行出片。")
+
     out.mkdir(parents=True, exist_ok=True)
     frames_dir = out / "frames"
     audio_dir = out / "audio"

@@ -145,6 +145,33 @@ def ensure_dir(p: Path) -> Path:
     return p
 
 
+def grade(img: Image.Image, spec: dict | None) -> Image.Image:
+    """轻量调色（取自 EAC 的 grade 思路，砍到本机能做的部分）。
+
+    spec: {"contrast": 1.08, "saturation": 1.05, "warmth": 0.02, "lift": 4}
+    """
+    if not spec:
+        return img
+    from PIL import ImageEnhance
+
+    if spec.get("contrast"):
+        img = ImageEnhance.Contrast(img).enhance(float(spec["contrast"]))
+    if spec.get("saturation"):
+        img = ImageEnhance.Color(img).enhance(float(spec["saturation"]))
+    warmth = float(spec.get("warmth", 0))
+    lift = int(spec.get("lift", 0))
+    if warmth or lift:
+        r, g, b = img.split()
+        if warmth:
+            r = r.point(lambda v: min(255, int(v * (1 + warmth))))
+            b = b.point(lambda v: max(0, int(v * (1 - warmth))))
+        if lift:
+            f = lambda v: min(255, v + lift)
+            r, g, b = r.point(f), g.point(f), b.point(f)
+        img = Image.merge("RGB", (r, g, b))
+    return img
+
+
 _BAND: Image.Image | None = None
 
 

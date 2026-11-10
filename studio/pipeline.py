@@ -34,8 +34,18 @@ def _prepare_assets(shots: list[dict], out: Path, fps: int) -> dict:
         # art 镜头可以只写 prompt，由即梦生成后再套风格
         if kind == "art" and not s.get("image") and s.get("prompt"):
             from . import imggen
+            prompt = s["prompt"]
+            # 风格库注入：把 341 条风格里的「风格提示词」拼进生图 prompt
+            kw = s.get("style_keyword")
+            if kw:
+                hits = stylelib.search(kw)
+                if hits:
+                    extra = hits[0].get("prompt") or hits[0].get("look") or ""
+                    if extra:
+                        prompt = f"{prompt}。画风：{extra}"
+                        print(f"风格注入：{hits[0]['title']} → {extra[:28]}…")
             try:
-                paths = imggen.generate(s["prompt"], s.get("gen_size", "720x1280"), 1,
+                paths = imggen.generate(prompt, s.get("gen_size", "720x1280"), 1,
                                         out_dir=out / "gen")
                 s["image"] = str(paths[0])
                 print(f"生图：{Path(paths[0]).name}")

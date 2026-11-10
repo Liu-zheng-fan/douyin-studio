@@ -109,6 +109,8 @@ script.json
 | `studio/sfx.py` | 音效引擎：9 种事件音 + 卷积混响 + 低频铺底（移植自 vibe-knowledge-film） |
 | `studio/fields.py` | 程序化动态背景：噪声 / 点阵 / 粒子 / 流场，文字区自动衰减 |
 | `studio/typefx.py` | 动态文字：逐字出现 / 波浪 / 弹入 |
+| `studio/transitions.py` | 跨镜头转场：溶解 / 淡入淡出 / 擦除 / 推入 / 缩放 |
+| `ops/suggest.py` | 数据驱动建议：下一条该改哪个变量 |
 | `studio/imggen.py` | 即梦 Seedream 客户端，缓存不重复计费 |
 | `studio/compliance.py` | 广告法词表 + AI 标识 |
 | `studio/qc.py` | 机器质检 |
@@ -168,10 +170,14 @@ script.json
 ## 测试
 
 ```bash
-python -m pytest -q      # 61 个用例：动画内核 / 合规 / 镜头 / 质检 / 脚本闸门 / 音效 / 背景 / 文字动效
+python -m pytest -q      # 73 个用例：动画内核 / 合规 / 镜头 / 质检 / 闸门 / 音效 / 背景 / 文字 / 转场 / 调色
 ```
 
 ---
+
+## 十个项目的融合报告
+
+见 [docs/integration-report.md](docs/integration-report.md)：每个项目取了什么、没取什么、为什么。
 
 ## 来源与许可
 

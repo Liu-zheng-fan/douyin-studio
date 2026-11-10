@@ -13,6 +13,7 @@ from PIL import Image
 from . import fields
 from . import shots as shot_lib
 from . import theme as th
+from . import transitions
 
 SUB_MAX_CHARS = 13
 
@@ -84,6 +85,8 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
     bg = th.backdrop(variant)
 
     n = 0
+    trans_kind, trans_dir, trans_dur = transitions.pick(script)
+    prev_last: Image.Image | None = None
     for idx, shot in enumerate(script["shots"]):
         dur = durations[idx]
         count = max(1, int(round(dur * fps)))
@@ -100,11 +103,17 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
                 left, top = (w - cw) // 2, (h - ch) // 2
                 frame = frame.crop((left, top, left + cw, top + ch)).resize((w, h), Image.BILINEAR)
             frame = th.ambient(frame, t_abs)
+            if script.get("grade"):
+                frame = th.grade(frame, script["grade"])
+            if prev_last is not None and trans_kind != "none" and t_local < trans_dur:
+                frame = transitions.blend(prev_last, frame, t_local / trans_dur,
+                                          trans_kind, trans_dir)
             text = _active_sub(subs, t_abs)
             if text:
                 th.draw_subtitle(frame, text, y=sub_y)
             n += 1
             frame.save(frames_dir / f"{n:05d}.png", compress_level=1)
+        prev_last = frame          # 下一镜转场时要用这一镜的最后一帧
     return n
 
 

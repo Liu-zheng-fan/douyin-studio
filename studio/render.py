@@ -10,6 +10,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from . import fields
 from . import shots as shot_lib
 from . import theme as th
 
@@ -78,6 +79,8 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
     fps = int(script.get("fps", th.FPS))
     variant = script.get("backdrop", "dark")
     sub_y = int(script.get("subtitle_y", 1430))
+    field = script.get("field")            # noise / dots / particles / flow
+    drift = float(script.get("drift", 0.012))   # 每镜缓慢推近的幅度，0 关闭
     bg = th.backdrop(variant)
 
     n = 0
@@ -87,7 +90,15 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
         for k in range(count):
             t_local = k / fps
             t_abs = starts[idx] + t_local
-            frame = shot_lib.render(bg.copy(), shot, t_local, dur, assets)
+            base = fields.render(field, t_abs) if field else bg.copy()
+            frame = shot_lib.render(base, shot, t_local, dur, assets)
+            if drift > 0:
+                # 整镜缓慢推近 1.0 → 1+drift。没有它，静止的字卡在手机上像截图。
+                z = 1.0 + drift * (t_local / max(dur, 0.01))
+                w, h = frame.size
+                cw, ch = int(w / z), int(h / z)
+                left, top = (w - cw) // 2, (h - ch) // 2
+                frame = frame.crop((left, top, left + cw, top + ch)).resize((w, h), Image.BILINEAR)
             frame = th.ambient(frame, t_abs)
             text = _active_sub(subs, t_abs)
             if text:

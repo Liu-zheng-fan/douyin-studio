@@ -13,11 +13,13 @@
   "rate": "-4%",
   "pitch": "-2Hz",
   "bgm": "quirky",
+  "field": "particles",
   "subtitle_y": 1640,
   "shots": [
     {
       "type": "hook",
       "say": "我不吃饭，但我卖装饭的盆。",
+      "fx": "type",
       "text": ["我不吃饭"],
       "sub": "但我卖装饭的盆"
     },

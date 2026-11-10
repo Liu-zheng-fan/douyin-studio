@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from . import motion as mo
 from . import theme as th
+from . import typefx
 
 
 # ------------------------------------------------------------------ helpers
@@ -96,14 +97,23 @@ def hook(base, t, dur, spec, assets):
     scale = mo.lerp(0.72, 1.0, s_in)
     alpha = int(255 * mo.clamp(t / 0.16))
 
-    # 用一个整体图层做缩放，保证多行同步
-    block_w, block_h = th.measure_block(wrapped, fnt)
-    layer = Image.new("RGBA", (max(1, block_w + 80), max(1, block_h + 60)), (0, 0, 0, 0))
-    ld = ImageDraw.Draw(layer)
-    th.draw_lines(ld, wrapped, fnt, 40, 30, th.INK, alpha, spacing=1.2)
-    if scale != 1.0:
-        layer = layer.resize((max(1, int(layer.width * scale)), max(1, int(layer.height * scale))), Image.LANCZOS)
-    ov.alpha_composite(layer, (int(th.W / 2 - layer.width / 2), int(y0 - 30 + (1 - s_in) * 60)))
+    fx = spec.get("fx")
+    if fx:
+        # 逐字动效：文字块居中，逐字绘制（每帧都在变）
+        block_w = max((fnt.getlength(l) for l in wrapped), default=0)
+        typefx.draw(fx, d, wrapped, fnt, int(th.W / 2 - block_w / 2), int(y0), t,
+                    th.INK, alpha, stroke=int(spec.get("stroke", 0)))
+    else:
+        # 默认：整块弹入 + 缩放
+        block_w, block_h = th.measure_block(wrapped, fnt)
+        layer = Image.new("RGBA", (max(1, block_w + 80), max(1, block_h + 60)), (0, 0, 0, 0))
+        ld = ImageDraw.Draw(layer)
+        th.draw_lines(ld, wrapped, fnt, 40, 30, th.INK, alpha, spacing=1.2)
+        if scale != 1.0:
+            layer = layer.resize((max(1, int(layer.width * scale)),
+                                  max(1, int(layer.height * scale))), Image.LANCZOS)
+        ov.alpha_composite(layer, (int(th.W / 2 - layer.width / 2),
+                                   int(y0 - 30 + (1 - s_in) * 60)))
 
     # 强调条：随时间生长，保证任何一帧都有东西在变
     bar_w = mo.ease_out_expo(mo.progress(t, 0.1, 0.9)) * (th.W - th.TEXT_X * 2)

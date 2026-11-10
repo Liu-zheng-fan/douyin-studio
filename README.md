@@ -106,6 +106,9 @@ script.json
 | `studio/audio.py` | edge-tts 与 SAPI 双引擎，时长反推 |
 | `studio/bgm.py` | 五情绪自动配乐（calm/warm/tense/drive/quirky） |
 | `studio/art.py` | 图片风格化（网点/波普/线稿/粉笔/双色调）+ 视频抽帧 |
+| `studio/sfx.py` | 音效引擎：9 种事件音 + 卷积混响 + 低频铺底（移植自 vibe-knowledge-film） |
+| `studio/fields.py` | 程序化动态背景：噪声 / 点阵 / 粒子 / 流场，文字区自动衰减 |
+| `studio/typefx.py` | 动态文字：逐字出现 / 波浪 / 弹入 |
 | `studio/imggen.py` | 即梦 Seedream 客户端，缓存不重复计费 |
 | `studio/compliance.py` | 广告法词表 + AI 标识 |
 | `studio/qc.py` | 机器质检 |
@@ -165,7 +168,7 @@ script.json
 ## 测试
 
 ```bash
-python -m pytest -q      # 48 个用例：动画内核 / 合规 / 镜头 / 质检 / 脚本闸门
+python -m pytest -q      # 61 个用例：动画内核 / 合规 / 镜头 / 质检 / 脚本闸门 / 音效 / 背景 / 文字动效
 ```
 
 ---
@@ -188,6 +191,6 @@ MIT。融合了四个开源项目的方法或代码，详见 [docs/attribution.m
 v0.1.0，可用但仍在打磨。已知限制：
 
 - 只出竖屏 1080×1920
-- 纯代码画面，帧差约 4–6（实拍素材约 33），视觉丰富度有限
+- 纯代码画面，帧差约 5（实拍素材约 33）。实测加动态背景与逐字动效只提升约 10%，**差距在内容形态而非参数**
 - 抖音数据未接官方接口，靠人工录入
 - 发布需人工或自行申请开放平台权限

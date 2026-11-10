@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "douyin-studio"
+version = "0.1.0"
+description = "抖音竖屏短视频生产线：逐帧渲染、机器质检、审批箱、拉片拆解、实验台账"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "想要白饭的小鲸鱼" }]
+keywords = ["douyin", "short-video", "agent", "llm", "ffmpeg", "automation"]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: Microsoft :: Windows",
+]
+dependencies = [
+    "pillow>=10",
+    "numpy>=1.26",
+    "httpx>=0.27",
+    "imageio-ffmpeg>=0.4",
+]
+
+[project.optional-dependencies]
+tts = ["edge-tts>=7.0"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+dy-studio = "studio.pipeline:main"
+dy-qc = "studio.qc:main"
+dy-outbox = "studio.outbox:main"
+dy-daily = "ops.daily:main"
+dy-autopsy = "ops.autopsy:main"
+dy-review = "ops.review:main"
+
+[tool.setuptools]
+packages = ["studio", "douyin", "ops"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

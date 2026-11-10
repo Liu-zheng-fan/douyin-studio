@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# äº§ç‰©
+dist/
+outbox/
+assets/gen/
+assets/audio/
+frames/
+*.mp4
+*.wav
+*.mp3
+!examples/**/*.mp4
+
+# æœ¬åœ°çŠ¶æ€ä¸å‡­è¯
+ops/state/
+ops/ledger.jsonl
+ops/autopsy.jsonl
+ops/today.json
+*.local.json
+.env
+
+# ç¼–è¾‘å™¨ä¸ç³»ç»Ÿ
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# æµ‹è¯•ä¸ç¼“å­˜
+.pytest_cache/
+.ruff_cache/
+
+# ·ç¸ñ¿âË÷Òı»º´æ£¨º¬¾ø¶ÔÂ·¾¶£©
+studio/.style_index.json

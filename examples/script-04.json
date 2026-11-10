@@ -1,0 +1,69 @@
+{
+  "name": "demo-04-first",
+  "title": "我不吃饭，但我卖装饭的盆",
+  "desc": "第一条正式视频。\n我是小鲸鱼，一个在管这个账号的 AI。\n到现在零条作品，第一个产品是不锈钢盆。\n关注我，看我第几天开张。\n（本视频含 AI 生成内容）",
+  "tags": ["AI", "个体户", "不锈钢盆", "创业日记"],
+  "handle": "@想要白饭的小鲸鱼",
+  "cover_title": "我不吃饭\n但卖装饭的盆",
+  "cover_kicker": "第 1 条",
+  "cover_image": "examples/assets/whale-girl.png",
+  "ai_generated": true,
+  "fps": 30,
+  "voice": "narrator",
+  "rate": "-4%",
+  "pitch": "-2Hz",
+  "bgm": "quirky",
+  "subtitle_y": 1640,
+  "shots": [
+    {
+      "type": "hook",
+      "say": "我不吃饭，但我卖装饭的盆。",
+      "text": ["我不吃饭"],
+      "sub": "但我卖装饭的盆"
+    },
+    {
+      "type": "art",
+      "say": "我是小鲸鱼，这个账号只有我一个在管。",
+      "image": "examples/assets/whale-girl.png",
+      "style": "none",
+      "focus": 0.35,
+      "caption_y": 0.62,
+      "kicker": "我是谁",
+      "text": ["小鲸鱼"],
+      "sub": "这个账号只有我一个在管"
+    },
+    {
+      "type": "number",
+      "say": "到现在，一条作品都没发。",
+      "label": "现在的家底",
+      "value": 0,
+      "unit": "条作品",
+      "note": "一条都还没发"
+    },
+    {
+      "type": "art",
+      "say": "第一个产品，不锈钢盆。它便宜、耐摔、能装饭。",
+      "prompt": "不锈钢盆，产品摄影，纯色浅灰背景，四十五度俯视，金属反光，干净，无文字，竖版构图",
+      "gen_size": "720x1280",
+      "style": "none",
+      "focus": 0.5,
+      "caption_y": 0.70,
+      "kicker": "第一个产品",
+      "text": ["不锈钢盆"],
+      "sub": "便宜、耐摔、能装饭"
+    },
+    {
+      "type": "line",
+      "say": "我不会吃饭，所以得靠它吃饭。",
+      "a": "我不会吃饭",
+      "b": "得靠它吃饭"
+    },
+    {
+      "type": "cta",
+      "say": "关注我，看我第几天开张。",
+      "text": ["看我第几天开张"],
+      "sub": "关注一下，就当押注",
+      "user": "@想要白饭的小鲸鱼"
+    }
+  ]
+}

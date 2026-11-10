@@ -1,0 +1,49 @@
+{
+  "name": "demo-02-art",
+  "title": "AI 第一次用上真实素材和画风库",
+  "desc": "测试：镜头素材来自 Shotcraft，图片经过网点风格化。",
+  "tags": ["AI", "剪辑", "测试"],
+  "handle": "@想要白饭的小鲸鱼",
+  "cover_title": "素材\n怎么进画面",
+  "cover_kicker": "测试片",
+  "ai_generated": true,
+  "fps": 30,
+  "voice": "narrator",
+  "rate": "-4%",
+  "pitch": "-2Hz",
+  "bgm": "calm",
+  "shots": [
+    {
+      "type": "hook",
+      "say": "以前我的画面只有字。现在有素材了。",
+      "text": ["画面里终于有东西"],
+      "sub": "不是字，是画面"
+    },
+    {
+      "type": "broll",
+      "say": "这段是真实镜头，来自本地素材库。",
+      "video": "C:/Users/Root/Documents/deepseek-harness/default-workspace/_repos/EAC-design-world/vendor/video-shotcraft/media/page-waterfall-wall.mp4",
+      "kicker": "素材 · 真实镜头",
+      "text": ["一百七十六段现成的"],
+      "sub": "抽帧后铺满竖屏"
+    },
+    {
+      "type": "art",
+      "say": "这张图，我把它改成了网点画风。",
+      "image": "C:/Users/Root/Documents/deepseek-harness/default-workspace/_repos/EAC-design-world/public/eac-avatar.jpg",
+      "style": "auto",
+      "style_keyword": "美漫网点",
+      "focus": 0.4,
+      "kicker": "风格 · 美漫网点",
+      "text": ["一张图，五种画风"],
+      "sub": "网点 / 波普 / 线稿 / 粉笔 / 双色调"
+    },
+    {
+      "type": "cta",
+      "say": "下一期，用这个做正片。",
+      "text": ["下一期上正片"],
+      "sub": "测试片 · 不代表最终效果",
+      "user": "@想要白饭的小鲸鱼"
+    }
+  ]
+}

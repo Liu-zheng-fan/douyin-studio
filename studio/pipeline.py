@@ -18,7 +18,7 @@ import sys
 import time
 from pathlib import Path
 
-from . import audio, bgm as bgm_mod, compliance, cover as cover_mod, ff, render, stylelib, theme as th
+from . import audio, bgm as bgm_mod, compliance, cover as cover_mod, ff, render, sfx as sfx_mod, stylelib, theme as th
 
 
 def _prepare_assets(shots: list[dict], out: Path, fps: int) -> dict:
@@ -178,15 +178,23 @@ def build(
     n = render.render_frames(script, durations, starts, subs, frames_dir, assets)
     print(f"渲染 {n} 帧，用时 {time.time() - t_start:.0f}s")
 
-    # 5) 音轨
+    # 5) 音轨：人声 + 音效（+ 可选 BGM）
     track = None if silent else audio.build_track(durations, audio_dir, out / "voice.wav")
+
+    sfx_path: Path | None = None
+    sfx_info: dict | None = None
+    if script.get("sfx", True) and not silent:
+        sfx_info = sfx_mod.build(durations, starts, shots, out / "sfx.wav",
+                                 drone=float(script.get("sfx_drone", 1.0)))
+        sfx_path = Path(sfx_info["file"])
+        print(f"音效：{sfx_info['events']} 个事件")
 
     # 6) 合成
     mp4 = out / "video.mp4"
     args = [ff.ffmpeg(), "-y", "-loglevel", "error",
             "-framerate", str(script.get("fps", th.FPS)), "-i", str(frames_dir / "%05d.png")]
     idx = 1
-    voice_idx = bgm_idx = None
+    voice_idx = bgm_idx = sfx_idx = None
     if track:
         args += ["-i", str(track)]
         voice_idx = idx
@@ -195,20 +203,35 @@ def build(
         args += ["-i", str(bgm_path)]
         bgm_idx = idx
         idx += 1
+    if sfx_path:
+        args += ["-i", str(sfx_path)]
+        sfx_idx = idx
+        idx += 1
 
     args += ["-t", f"{total:.3f}", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
              "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart"]
 
-    if voice_idx is not None and bgm_idx is not None:
-        fc = (f"[{bgm_idx}:a]{_bgm_filter(total)}[bg];"
-              f"[{voice_idx}:a]{audio.loudnorm_args()}[v];"
-              f"[v][bg]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
-              f"alimiter=limit=0.95[a]")
+    # 分层混音：人声做 loudnorm，BGM 压低并低通，音效保持清晰
+    layers: list[str] = []
+    if voice_idx is not None:
+        layers.append(f"[{voice_idx}:a]{audio.loudnorm_args()}[v]")
+    if bgm_idx is not None:
+        layers.append(f"[{bgm_idx}:a]{_bgm_filter(total)}[bg]")
+    if sfx_idx is not None:
+        layers.append(f"[{sfx_idx}:a]volume=0.9[fx]")
+
+    if len(layers) >= 2:
+        labels = "".join("[" + n_ + "]" for n_ in ("v", "bg", "fx")[:len(layers)])
+        fc = ";".join(layers) + (
+            f";{labels}amix=inputs={len(layers)}:duration=first:dropout_transition=0:"
+            f"normalize=0,alimiter=limit=0.95[a]")
         args += ["-filter_complex", fc, "-map", "0:v", "-map", "[a]"]
     elif voice_idx is not None:
         args += ["-af", audio.loudnorm_args(), "-map", "0:v", "-map", f"{voice_idx}:a"]
     elif bgm_idx is not None:
         args += ["-af", "volume=0.35", "-map", "0:v", "-map", f"{bgm_idx}:a"]
+    elif sfx_idx is not None:
+        args += ["-af", "volume=0.55", "-map", "0:v", "-map", f"{sfx_idx}:a"]
     else:
         args += ["-map", "0:v"]
 
@@ -229,6 +252,7 @@ def build(
         "tts_engine": used_engine,
         "voice": audio.resolve_voice(voice or script.get("voice", audio.DEFAULT_VOICE)),
         "bgm": bgm_info,
+        "sfx": sfx_info,
         "video": str(mp4.resolve()),
         "cover_3x4": str(Path(covers["cover_3x4"]).resolve()),
         "cover_9x16": str(Path(covers["cover_9x16"]).resolve()),

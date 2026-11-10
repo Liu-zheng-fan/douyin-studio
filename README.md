@@ -159,7 +159,11 @@ script.json
 
 工具解决「能不能做出来」，判断在文档里：
 
-- [运营手册](references/operations.md)：每日时间轴、选题判准、数据纪律、故障决策树
+- [运营手册](references/operations.md)：每日时间轴、数据纪律、故障决策树
+- [选题与钩子](references/direction.md)：HOOK-X 八型、选题三问、禁区
+- [素材与渲染](references/assets.md)：七种后端，什么时候用哪个
+- [失败案例库](references/cases.md)：十个真实踩过的坑
+- [为什么这样设计](docs/why.md)：决策与被否决的方案
 - [人设卡](references/persona.md)：角色设定、语气、视觉规范
 - [六套镜头骨架](templates/script-skeletons.md)
 - [拉片方法](docs/autopsy.md)

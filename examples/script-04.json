@@ -29,7 +29,7 @@
     {
       "type": "char",
       "say": "我是小鲸鱼，这个账号只有我一个在管。",
-      "action": "端盆",
+      "action": "白饭",
       "caption_y": 0.26,
       "kicker": "我是谁",
       "text": ["小鲸鱼"],

@@ -5,7 +5,7 @@ __pycache__/
 .venv/
 venv/
 
-# äº§ç‰©
+# outputs
 dist/
 outbox/
 assets/gen/
@@ -14,9 +14,12 @@ frames/
 *.mp4
 *.wav
 *.mp3
-!examples/**/*.mp4
 
-# æœ¬åœ°çŠ¶æ€ä¸å‡­è¯
+# local assets (large / third-party license) - keep repo small
+characters/**/*.png
+assets/broll/
+
+# local state and credentials
 ops/state/
 ops/ledger.jsonl
 ops/autopsy.jsonl
@@ -24,15 +27,15 @@ ops/today.json
 *.local.json
 .env
 
-# ç¼–è¾‘å™¨ä¸ç³»ç»Ÿ
+# style library index cache (absolute paths)
+studio/.style_index.json
+
+# editors / os
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# æµ‹è¯•ä¸ç¼“å­˜
+# tests
 .pytest_cache/
 .ruff_cache/
-
-# ·ç¸ñ¿âË÷Òı»º´æ£¨º¬¾ø¶ÔÂ·¾¶£©
-studio/.style_index.json

@@ -90,7 +90,7 @@
 
 ## 5. 质检
 
-`python -m studio.qc <mp4>`，判定三级：
+`python -m douyin qc <mp4>`，判定三级：
 
 | 级别 | 含义 | 处理 |
 |---|---|---|
@@ -102,7 +102,7 @@
 
 ## 6. 审批协议
 
-`python -m studio.outbox pack <dist>` → `python -m studio.outbox serve`（手机连同一 WiFi 打开）。
+`python -m douyin pack <dist>` → `python -m douyin serve`（手机连同一 WiFi 打开）。
 
 拒绝必须选一个理由标签，标签直接决定次日改什么：
 
@@ -172,7 +172,7 @@
 新会话接手时按顺序确认：
 
 1. `python scripts/selfcheck.py` 全绿
-2. `python -m studio.imggen --check` 为 `ready: true`
+2. `python -m douyin imggen --check` 为 `ready: true`
 3. `ops/ledger.jsonl` 里最近 3 条的变量是什么，今天该动哪一个
 4. `outbox/` 里有没有 pending 的决定没处理
 5. 上一轮被拒绝的标签是什么——今天不能重复同一个毛病

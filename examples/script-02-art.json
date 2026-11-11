@@ -22,7 +22,7 @@
     {
       "type": "broll",
       "say": "这段是真实镜头，来自本地素材库。",
-      "video": "C:/Users/Root/Documents/deepseek-harness/default-workspace/_repos/EAC-design-world/vendor/video-shotcraft/media/page-waterfall-wall.mp4",
+      "video": "examples/assets/shotcraft-sample.mp4",
       "kicker": "素材 · 真实镜头",
       "text": ["一百七十六段现成的"],
       "sub": "抽帧后铺满竖屏"
@@ -30,7 +30,7 @@
     {
       "type": "art",
       "say": "这张图，我把它改成了网点画风。",
-      "image": "C:/Users/Root/Documents/deepseek-harness/default-workspace/_repos/EAC-design-world/public/eac-avatar.jpg",
+      "image": "examples/assets/whale-girl.png",
       "style": "auto",
       "style_keyword": "美漫网点",
       "focus": 0.4,

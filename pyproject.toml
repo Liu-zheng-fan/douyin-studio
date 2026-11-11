@@ -28,6 +28,7 @@ tts = ["edge-tts>=7.0"]
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.scripts]
+douyin = "douyin.cli:main"
 dy-studio = "studio.pipeline:main"
 dy-qc = "studio.qc:main"
 dy-outbox = "studio.outbox:main"

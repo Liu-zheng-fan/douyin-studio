@@ -72,7 +72,7 @@
 ## 六、写完之后：先打分再渲染
 
 ```bash
-python -m ops.gates examples/script-04.json
+python -m douyin gates examples/script-04.json
 ```
 
 300 分制，低于 200 分重写。它会检查：

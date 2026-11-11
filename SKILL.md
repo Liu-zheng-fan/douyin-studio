@@ -44,13 +44,13 @@ python scripts/selfcheck.py
 
 **④ 出片**
 ```bash
-python -m studio.pipeline examples/script-01.json
+python -m douyin build examples/script-01.json
 ```
 产物在 `dist/<name>/`：`video.mp4`、`cover_3x4.png`、`manifest.json`、`meta.json`。
 
 **⑤ 看三帧再往下走**
 ```bash
-python -m studio.pipeline examples/script-01.json --keep-frames
+python -m douyin build examples/script-01.json --keep-frames
 ```
 打开 `dist/<name>/frames/` 看第 1 帧、中间帧、最后一帧。**渲染成功 ≠ 画面正确。** 空画面、文字出界、字幕压字，都只有肉眼能发现。
 
@@ -59,9 +59,9 @@ python -m studio.pipeline examples/script-01.json --keep-frames
 
 **⑦ 发布 → 记台账 → 复盘**
 ```bash
-python -m douyin.publish package dist/demo-01
-python -m ops.ledger add --title "..." --plays 320 --completion 0.28 --hook-type 提问开场
-python -m ops.review --by hook_type --metric completion_rate
+python -m douyin publish package dist/demo-01
+python -m douyin ledger add --title "..." --plays 320 --completion 0.28 --hook-type 提问开场
+python -m douyin review --by hook_type --metric completion_rate
 ```
 
 ## 3. script.json 规格
@@ -149,7 +149,7 @@ python -m ops.review --by hook_type --metric completion_rate
 - 生成后仍会套 `style`（`none` 表示原图），所以「生成 + 统一画风」是一条链。
 - 同 prompt 命中本地缓存（`assets/gen/`），重跑不重复计费。
 - 没配 Key 或请求失败时**退回占位框并告警**，不会中断渲染。
-- 配置步骤见 `docs/imggen-setup.md`；自检：`python -m studio.imggen --check`。
+- 配置步骤见 `docs/imggen-setup.md`；自检：`python -m douyin imggen --check`。
 
 ### 镜头类型
 
@@ -174,21 +174,21 @@ python -m ops.review --by hook_type --metric completion_rate
 | 目的 | 命令 |
 |---|---|
 | 环境自检 | `python scripts/selfcheck.py` |
-| 出片 | `python -m studio.pipeline <script.json>` |
-| 换音色出片 | `python -m studio.pipeline <script.json> --voice anchor` |
-| 不配乐 | `python -m studio.pipeline <script.json> --no-bgm` |
+| 出片 | `python -m douyin build <script.json>` |
+| 换音色出片 | `python -m douyin build <script.json> --voice anchor` |
+| 不配乐 | `python -m douyin build <script.json> --no-bgm` |
 | 看 BGM 判定依据 | `python -m studio.bgm <script.json>` |
-| 只快看画面（无配音） | `python -m studio.pipeline <script.json> --silent --keep-frames` |
-| 强制忽略合规 | `python -m studio.pipeline <script.json> --force`（**慎用**） |
-| 生成发布包 | `python -m douyin.publish package dist/<name>` |
-| 机器质检 | `python -m studio.qc dist/<name>/video.mp4` |
-| 投递审批箱 | `python -m studio.outbox pack dist/<name>` |
-| 打开审批页 | `python -m studio.outbox serve --port 8787` |
-| 试接口发布 | `python -m douyin.publish api dist/<name> --dry-run` |
-| 真发（需权限） | `python -m douyin.publish api dist/<name> --yes` |
-| 记一条数据 | `python -m ops.ledger add --title "..." --plays 0` |
-| 看全部台账 | `python -m ops.ledger list` |
-| 单变量复盘 | `python -m ops.review --by hook_type --metric plays` |
+| 只快看画面（无配音） | `python -m douyin build <script.json> --silent --keep-frames` |
+| 强制忽略合规 | `python -m douyin build <script.json> --force`（**慎用**） |
+| 生成发布包 | `python -m douyin publish package dist/<name>` |
+| 机器质检 | `python -m douyin qc dist/<name>/video.mp4` |
+| 投递审批箱 | `python -m douyin pack dist/<name>` |
+| 打开审批页 | `python -m douyin serve --port 8787` |
+| 试接口发布 | `python -m douyin publish api dist/<name> --dry-run` |
+| 真发（需权限） | `python -m douyin publish api dist/<name> --yes` |
+| 记一条数据 | `python -m douyin ledger add --title "..." --plays 0` |
+| 看全部台账 | `python -m douyin ledger list` |
+| 单变量复盘 | `python -m douyin review --by hook_type --metric plays` |
 | 数据模板 | `python -m douyin.stats template` |
 
 ## 5. 发布：默认走人工包
@@ -216,14 +216,14 @@ python -m ops.review --by hook_type --metric completion_rate
 **人只做两件事**：给方向、点按钮。审批就一屏：
 
 ```bash
-python -m studio.outbox pack dist/<name>      # 质检不过不会进队列
-python -m studio.outbox serve --port 8787     # 手机连同一 WiFi 打开
+python -m douyin pack dist/<name>      # 质检不过不会进队列
+python -m douyin serve --port 8787     # 手机连同一 WiFi 打开
 ```
 
 拒绝必须选一个理由标签（选题/文案/画面/太慢/音频/产品），标签直接决定次日改什么。
 **连续两次同一标签 = 模板有病，改模板不是改这条片。**
 
-**开工前先做**：`python -m studio.qc` 过得去、`python -m studio.imggen --check` 是 `ready`、
+**开工前先做**：`python -m douyin qc` 过得去、`python -m douyin imggen --check` 是 `ready`、
 上一轮被拒的标签记牢——今天不许重复同一个毛病。
 
 ## 6. 实验协议（这是整套东西的重点）

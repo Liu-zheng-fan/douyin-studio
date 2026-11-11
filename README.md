@@ -48,14 +48,14 @@ pip install edge-tts            # 配音（可选，没有就用 SAPI 兜底）
 python scripts/selfcheck.py
 
 # 3. 出片
-python -m studio.pipeline examples/script-01.json
+python -m douyin build examples/script-01.json
 
 # 4. 质检
-python -m studio.qc dist/demo-01/video.mp4
+python -m douyin qc dist/demo-01/video.mp4
 
 # 5. 进审批箱
-python -m studio.outbox pack dist/demo-01
-python -m studio.outbox serve --port 8787
+python -m douyin pack dist/demo-01
+python -m douyin serve --port 8787
 ```
 
 产物在 `dist/<脚本名>/`：`video.mp4`、`cover_3x4.png`、`manifest.json`、`meta.json`。
@@ -127,21 +127,21 @@ script.json
 
 | 目的 | 命令 |
 |---|---|
-| 出片 | `python -m studio.pipeline <script.json>` |
+| 出片 | `python -m douyin build <script.json>` |
 | 只快看画面 | `... --silent --keep-frames` |
 | 换音色 | `... --voice anchor` |
 | 不配乐 | `... --no-bgm` |
-| 机器质检 | `python -m studio.qc <mp4>` |
-| 投递审批 | `python -m studio.outbox pack <dist>` |
-| 打开审批页 | `python -m studio.outbox serve --port 8787` |
-| 每日编排 | `python -m ops.daily`（幂等） |
-| 脚本评分 | `python -m ops.gates <script.json>` |
-| 拉片记录 | `python -m ops.autopsy add --id x --duration 30 --cuts 15` |
-| 拉片结论 | `python -m ops.autopsy report` |
-| 记数据 | `python -m ops.ledger add --title x --plays 320` |
-| 单变量复盘 | `python -m ops.review --by hook_type --metric completion_rate` |
-| 生图自检 | `python -m studio.imggen --check` |
-| 列出可用模型 | `python -m studio.imggen --models` |
+| 机器质检 | `python -m douyin qc <mp4>` |
+| 投递审批 | `python -m douyin pack <dist>` |
+| 打开审批页 | `python -m douyin serve --port 8787` |
+| 每日编排 | `python -m douyin daily`（幂等） |
+| 脚本评分 | `python -m douyin gates <script.json>` |
+| 拉片记录 | `python -m douyin autopsy add --id x --duration 30 --cuts 15` |
+| 拉片结论 | `python -m douyin autopsy report` |
+| 记数据 | `python -m douyin ledger add --title x --plays 320` |
+| 单变量复盘 | `python -m douyin review --by hook_type --metric completion_rate` |
+| 生图自检 | `python -m douyin imggen --check` |
+| 列出可用模型 | `python -m douyin imggen --models` |
 
 ---
 

@@ -100,6 +100,19 @@ def build(
 ) -> Path:
     t_start = time.time()
     script = render.load_script(script_path)
+
+    # 0) 字段校验：早失败，早说清楚哪一行错了
+    try:
+        from douyin import schema as schema_mod
+        val = schema_mod.validate(script_path)
+        if not val["ok"]:
+            for e in val["errors"]:
+                print(f"[字段错误] {e['where']}: {e['message']}")
+            raise SystemExit(f"script.json 有 {len(val['errors'])} 处错误，先修再渲染。")
+        for w in val["warnings"]:
+            print(f"[提示] {w['where']}: {w['message']}")
+    except ImportError:
+        pass
     name = script.get("name") or script_path.stem
     out = (out_root or script_path.parent.parent / "dist") / name
 

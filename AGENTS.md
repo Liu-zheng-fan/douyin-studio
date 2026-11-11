@@ -36,6 +36,7 @@ python -m douyin pack   dist/demo-04-first        # 3. 投递审批箱
 | `docs/` | 为什么这样设计、架构、失败案例 | 想改结构前先读 |
 | `references/` | 运营手册、选题钩子、素材选型 | 要写内容时 |
 | `templates/` | 六套镜头骨架 | 写脚本时照抄 |
+| `characters/` | **形象库**：`characters/<角色>/<动作>.png`（透明 PNG，文件名=动作） | 要换形象时 |
 
 ## 状态在哪
 

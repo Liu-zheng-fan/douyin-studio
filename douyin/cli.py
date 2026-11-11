@@ -86,6 +86,13 @@ def status() -> dict:
         info["today"] = {"error": str(exc)}
         info["pending"] = []
 
+    # 形象库
+    try:
+        from studio import character
+        info["characters"] = character.describe()
+    except Exception as exc:
+        info["characters"] = {"count": 0, "error": str(exc)}
+
     # 台账
     try:
         from ops import ledger

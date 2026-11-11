@@ -409,6 +409,31 @@ def broll(base, t, dur, spec, assets):
     return _blend(frame, ov)
 
 
+def char(base, t, dur, spec, assets):
+    """角色出镜：透明 PNG 贴底 + 轻浮动 + 上方压字。
+
+    形象从 characters/<角色>/<动作>.png 取；取不到就退回文字卡，不崩。
+    """
+    from . import character
+
+    path = spec.get("_char_path")
+    if path is None:
+        path = character.pick(spec.get("action", ""), spec.get("characters"))
+    if path is None:
+        fallback = {**spec, "text": spec.get("text") or [spec.get("action") or "（缺形象）"]}
+        return hook(base, t, dur, fallback, assets)
+
+    frame = character.place(base.convert("RGB"), Path(path), t,
+                            float(spec.get("height", 0.56)),
+                            int(spec.get("bottom", 0)))
+    cy = float(spec.get("caption_y", 0.30))
+    frame = _band(frame, int(th.H * (cy - 0.08)), int(th.H * (cy + 0.26)),
+                  int(spec.get("band", 170)))
+    ov, d = _overlay(frame.convert("RGBA"))
+    _caption(d, spec, t, dur, th.H * cy)
+    return _blend(frame, ov)
+
+
 def cta(base, t, dur, spec, assets):
     """收尾：一句行动指令 + 账号名。慢推进制造收束感。"""
     ov, d = _overlay(base)
@@ -446,6 +471,7 @@ SHOTS = {
     "bullets": bullets,
     "art": art,
     "broll": broll,
+    "char": char,
     "cta": cta,
 }
 

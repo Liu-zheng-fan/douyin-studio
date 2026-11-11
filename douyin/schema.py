@@ -15,8 +15,9 @@ SHOT_FIELDS = {
     "line": ["a", "b"],
     "reveal": ["name", "image", "labels", "placeholder"],
     "bullets": ["title", "items"],
-    "art": ["image", "prompt", "style", "style_keyword", "focus", "caption_y", "kicker", "text", "sub"],
+    "art": ["image", "prompt", "gen_size", "style", "style_keyword", "focus", "caption_y", "kicker", "text", "sub"],
     "broll": ["video", "kicker", "text", "sub", "scrim"],
+    "char": ["action", "characters", "height", "bottom", "caption_y", "kicker", "text", "sub", "band"],
     "cta": ["text", "sub", "user"],
 }
 
@@ -44,6 +45,7 @@ TOP_FIELDS = {
     "drift": "整镜推近幅度，默认 0.012，0 关闭",
     "grade": "调色：{contrast, saturation, warmth, lift}",
     "subtitle_y": "字幕纵向位置，默认 1430",
+    "characters": "形象目录，默认 characters/（里面一个角色一个文件夹）",
     "sfx": "是否配音效，默认 true",
     "strict_gates": "true 时脚本评分不足直接拒绝渲染",
     "shots": "镜头数组，必填",
@@ -117,8 +119,13 @@ def validate(path: Path) -> dict:
             continue
         if not (s.get("say") or "").strip():
             warn(f"{where}.say", "没有口播文本，配音模式会失败（只适合 --silent）")
-        elif len(s["say"]) > 18:
-            warn(f"{where}.say", f"口播 {len(s['say'])} 字，建议 ≤18 字")
+        else:
+            # 按句号切分后再量长度——整段长不代表每句都长，TTS 是按句读的
+            import re as _re
+            sents = [x.strip() for x in _re.split(r"[。！？!?]", s["say"]) if x.strip()]
+            long_ones = [x for x in sents if len(x) > 18]
+            if long_ones:
+                warn(f"{where}.say", f"有 {len(long_ones)} 句超过 18 字，最长 {max(len(x) for x in long_ones)} 字")
 
         if kind == "art" and not (s.get("image") or s.get("prompt")):
             err(where, "art 镜头需要 image 或 prompt 之一")

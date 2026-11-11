@@ -6,15 +6,17 @@
   "handle": "@想要白饭的小鲸鱼",
   "cover_title": "我不吃饭\n但卖装饭的盆",
   "cover_kicker": "第 1 条",
-  "cover_image": "examples/assets/whale-girl.png",
-  "ai_generated": true,"hook_type": "反常识", "golden": "我不吃饭，但我卖装饭的盆",
+  "ai_generated": true,
+  "hook_type": "反常识",
+  "golden": "我不吃饭，但我卖装饭的盆",
   "fps": 30,
   "voice": "narrator",
   "rate": "-4%",
   "pitch": "-2Hz",
   "bgm": "quirky",
   "field": "particles",
-  "transition": "wipe", "transition_dur": 0.3,
+  "transition": "wipe",
+  "transition_dur": 0.3,
   "subtitle_y": 1640,
   "shots": [
     {
@@ -25,12 +27,10 @@
       "sub": "但我卖装饭的盆"
     },
     {
-      "type": "art",
+      "type": "char",
       "say": "我是小鲸鱼，这个账号只有我一个在管。",
-      "image": "examples/assets/whale-girl.png",
-      "style": "none",
-      "focus": 0.35,
-      "caption_y": 0.62,
+      "action": "端盆",
+      "caption_y": 0.26,
       "kicker": "我是谁",
       "text": ["小鲸鱼"],
       "sub": "这个账号只有我一个在管"

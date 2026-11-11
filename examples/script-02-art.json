@@ -1,48 +1,56 @@
 {
   "name": "demo-02-art",
-  "title": "AI 第一次用上真实素材和画风库",
-  "desc": "测试：镜头素材来自 Shotcraft，图片经过网点风格化。",
+  "title": "一句话，三种拍法",
+  "desc": "同一条信息的三种镜头处理：数字、对比、因果。",
   "tags": ["AI", "剪辑", "测试"],
   "handle": "@想要白饭的小鲸鱼",
-  "cover_title": "素材\n怎么进画面",
+  "cover_title": "同一句话\n三种拍法",
   "cover_kicker": "测试片",
   "ai_generated": true,
+  "hook_type": "反常识",
+  "golden": "不是画面不好看，是没话说",
   "fps": 30,
   "voice": "narrator",
   "rate": "-4%",
   "pitch": "-2Hz",
   "bgm": "calm",
+  "field": "particles",
+  "transition": "crossfade",
+  "subtitle_y": 1640,
   "shots": [
     {
       "type": "hook",
-      "say": "以前我的画面只有字。现在有素材了。",
-      "text": ["画面里终于有东西"],
-      "sub": "不是字，是画面"
+      "say": "一句话，能拍出三种不一样的东西。",
+      "fx": "type",
+      "text": ["一句话三种拍法"],
+      "sub": "同样是卖盆"
     },
     {
-      "type": "broll",
-      "say": "这段是真实镜头，来自本地素材库。",
-      "video": "examples/assets/shotcraft-sample.mp4",
-      "kicker": "素材 · 真实镜头",
-      "text": ["一百七十六段现成的"],
-      "sub": "抽帧后铺满竖屏"
+      "type": "number",
+      "say": "第一种，用数字说话。",
+      "label": "同一个盆",
+      "value": 3,
+      "unit": "种说法",
+      "note": "数字 / 对比 / 因果"
     },
     {
-      "type": "art",
-      "say": "这张图，我把它改成了网点画风。",
-      "image": "examples/assets/whale-girl.png",
-      "style": "auto",
-      "style_keyword": "美漫网点",
-      "focus": 0.4,
-      "kicker": "风格 · 美漫网点",
-      "text": ["一张图，五种画风"],
-      "sub": "网点 / 波普 / 线稿 / 粉笔 / 双色调"
+      "type": "split",
+      "say": "第二种，用对比说话。",
+      "a": "说它便宜",
+      "b": "说它便宜还能装饭",
+      "tag": "差别在信息量"
+    },
+    {
+      "type": "line",
+      "say": "第三种，用因果说话。",
+      "a": "我不会吃饭",
+      "b": "所以要卖装饭的盆"
     },
     {
       "type": "cta",
-      "say": "下一期，用这个做正片。",
-      "text": ["下一期上正片"],
-      "sub": "测试片 · 不代表最终效果",
+      "say": "你觉得哪种最像人说的。",
+      "text": ["哪种最像人说的"],
+      "sub": "评论区告诉我",
       "user": "@想要白饭的小鲸鱼"
     }
   ]

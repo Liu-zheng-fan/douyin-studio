@@ -71,6 +71,17 @@ def _prepare_assets(shots: list[dict], out: Path, fps: int) -> dict:
                 assets[key] = art_mod.stylize(img, style)
             s["_asset_key"] = key
 
+        elif kind == "char":
+            # 形象图只在这一步解析一次，避免每帧扫目录
+            from . import character
+            p = character.pick(s.get("action", ""), s.get("characters"))
+            if p is None:
+                print(f"[提示] 形象库里找不到动作「{s.get('action')}」，这一镜会退回文字卡。"
+                      f"把透明 PNG 放进 characters/<角色>/<动作>.png 即可。")
+            else:
+                s["_char_path"] = str(p)
+                print(f"形象：{p.name}（{s.get('action')}）")
+
         elif kind == "broll" and s.get("video"):
             p = Path(s["video"])
             if not p.exists():

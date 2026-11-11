@@ -30,6 +30,47 @@ BANAL = [
 PASS_SCORE = 200       # 240 是原版阈值，这里放宽，先让流程跑起来
 MAX_SCORE = 300
 
+# ---- 三道预检（取自 douyin-script-pro）
+SAYING = ["你应该", "必须", "一定要", "相信我", "保证", "毫无疑问", "不容置疑"]
+EMOTION_LABEL = ["很伤心", "很难过", "非常开心", "特别感动", "很生气", "超级激动"]
+GROUP_HARM = ["女人就是", "男人都", "穷人就", "农村人都", "外地人都是", "老年人就是"]
+
+
+def precheck(script: dict) -> list[dict]:
+    """三道预检：复审生存 / 戏剧动作 / 潜台词。
+
+    返回 [{gate, level, message}]，level=block|warn。
+    """
+    out: list[dict] = []
+    text = " ".join(
+        [script.get("title", ""), script.get("desc", ""), script.get("golden", "")]
+        + [str(s.get("say") or "") for s in script.get("shots", [])]
+        + [str(s.get("sub") or "") for s in script.get("shots", [])]
+    )
+
+    # 1) 复审生存：不能消费特定群体
+    for w in GROUP_HARM:
+        if w in text:
+            out.append({"gate": "复审生存", "level": "block",
+                        "message": f"出现群体贬损表述「{w}」，平台会限流，换成具体处境"})
+
+    # 2) 戏剧动作：每场戏要能写成「想 X，但 Y」
+    if not script.get("conflict"):
+        out.append({"gate": "戏剧动作", "level": "warn",
+                    "message": "没写 conflict。补一句「我想要 X，但 Y 挡着」，否则容易变成流水账"})
+
+    # 3) 潜台词：情绪不能说破，不能写拍不出来的东西
+    for w in EMOTION_LABEL:
+        if w in text:
+            out.append({"gate": "潜台词", "level": "warn",
+                        "message": f"「{w}」把情绪说破了，让画面和动作承载它"})
+    for w in SAYING:
+        if w in text:
+            out.append({"gate": "潜台词", "level": "warn",
+                        "message": f"「{w}」是说教口吻，删掉或改成陈述"})
+
+    return out
+
 
 def _say_text(script: dict) -> str:
     return " ".join(str(s.get("say") or "") for s in script.get("shots", []))
@@ -101,14 +142,21 @@ def check(script: dict) -> dict:
     total = sum(d["score"] for d in detail)
     fails = [d for d in detail if d["score"] == 0]
 
+    # 三道预检：block 直接判不过，warn 只提示
+    pre = precheck(script)
+    blocked = any(p["level"] == "block" for p in pre)
+    total -= 15 * sum(1 for p in pre if p["level"] == "warn")
+
     return {
-        "score": total,
+        "score": max(0, total),
         "max": MAX_SCORE,
-        "pass": total >= PASS_SCORE,
+        "pass": (total >= PASS_SCORE) and not blocked,
         "threshold": PASS_SCORE,
         "detail": detail,
-        "fails": [f"{d['item']}（{d['note']}）" if d["note"] else d["item"] for d in fails],
-        "verdict": "pass" if total >= PASS_SCORE else "rewrite",
+        "precheck": pre,
+        "fails": [f"{d['item']}（{d['note']}）" if d["note"] else d["item"] for d in fails]
+                 + [p["message"] for p in pre if p["level"] == "block"],
+        "verdict": "pass" if (total >= PASS_SCORE and not blocked) else "rewrite",
     }
 
 

@@ -131,33 +131,59 @@ def hook(base, t, dur, spec, assets):
 
 
 def number(base, t, dur, spec, assets):
-    """数字滚动：把「差多少」变成可看见的增长。"""
+    """数字滚动：把「差多少」变成可看见的增长。
+
+    规格取自 brewreel 的 counter：支持 from（旧值）、prefix/suffix、showFrom（划掉旧值）。
+    """
     ov, d = _overlay(base)
     label = spec.get("label", "")
-    target = float(spec.get("value", 0))
-    unit = spec.get("unit", "")
+    target = float(spec.get("value", spec.get("to", 0)))
+    start_val = float(spec.get("from", 0))
+    prefix = spec.get("prefix", "")
+    suffix = spec.get("unit", spec.get("suffix", ""))
+    show_from = bool(spec.get("showFrom")) and spec.get("from") is not None
+    decimals = int(spec.get("decimals", 0))
 
     if label:
         a = int(255 * mo.progress(t, 0.0, 0.35))
-        d.text((th.TEXT_X, th.H * 0.30), label, font=th.font(52, bold=False), fill=th.MUTED + (a,))
+        d.text((th.TEXT_X, th.H * 0.24), label, font=th.font(52, bold=False), fill=th.MUTED + (a,))
+
+    # 旧值：先亮出来，落定前被红线划掉
+    if show_from:
+        f_old = th.font(80, bold=False)
+        a = int(255 * mo.progress(t, 0.0, 0.3))
+        old_txt = f"{prefix}{start_val:,.{decimals}f}{suffix}"
+        d.text((th.W // 2, th.H * 0.32), old_txt, font=f_old, fill=th.MUTED + (a,), anchor="mm")
+        strike = mo.ease_out_cubic(mo.progress(t, 0.55, 0.95))
+        if strike > 0:
+            w = f_old.getlength(old_txt)
+            d.line([(th.W / 2 - w / 2 - 10, th.H * 0.32),
+                    (th.W / 2 - w / 2 - 10 + (w + 20) * strike, th.H * 0.32)],
+                   fill=th.ACCENT_2 + (235,), width=7)
 
     p = mo.ease_out_cubic(mo.progress(t, 0.15, 0.95))
-    val = target * p
-    shown = f"{val:,.0f}" if abs(target) >= 100 else f"{val:.0f}"
+    val = start_val + (target - start_val) * p
+    fmt = ",.{}f".format(decimals)
+    shown = f"{prefix}{val:{fmt}}{suffix}"
 
-    fnt = th.font(300, bold=True)
+    size = 300 if len(shown) <= 5 else (230 if len(shown) <= 7 else 180)
+    fnt = th.font(size, bold=True)
     cx = th.W // 2
-    d.text((cx, th.H * 0.435), shown, font=fnt, fill=th.ACCENT + (255,), anchor="mm")
-    if unit:
-        d.text((cx, th.H * 0.435 + 208), unit, font=th.font(64, bold=True),
-               fill=th.INK + (225,), anchor="mm")
+    y = th.H * (0.47 if show_from else 0.435)
+    d.text((cx, y), shown, font=fnt, fill=th.ACCENT + (255,), anchor="mm")
 
-    note = spec.get("note")
+    # 落定那一拍弹一下
+    settle = mo.progress(t, 0.9, 1.15)
+    if 0 < settle < 1:
+        glow = int(90 * math.sin(math.pi * settle))
+        d.ellipse([cx - 260, y - 190, cx + 260, y + 190], outline=th.ACCENT + (glow,), width=6)
+
+    note = spec.get("note", spec.get("sub"))
     if note:
-        a = int(255 * mo.progress(t, 0.85, 1.2))
-        y = th.H * 0.62
+        a = int(255 * mo.progress(t, 0.95, 1.25))
+        ny = th.H * (0.66 if show_from else 0.62)
         for i, ln in enumerate(th.wrap(note, th.font(48, bold=False), th.TEXT_MAX_W)):
-            d.text((cx, y + i * 66), ln, font=th.font(48, bold=False),
+            d.text((cx, ny + i * 66), ln, font=th.font(48, bold=False),
                    fill=th.INK + (a,), anchor="ma")
     return _blend(base, ov)
 
@@ -434,6 +460,160 @@ def char(base, t, dur, spec, assets):
     return _blend(frame, ov)
 
 
+def steps(base, t, dur, spec, assets):
+    """1-2-3 流程：节点依次点亮，走完打 ✓。
+
+    规格取自 brewreel：2–4 步，标题 ≤8 字、动词开头，时长 ≈ 步数 × 1 秒 + 1.5 秒。
+    """
+    ov, d = _overlay(base)
+    items = spec.get("items") or []
+    items = items[:4]
+    n = max(1, len(items))
+    title = spec.get("title")
+
+    if title:
+        a = int(255 * mo.progress(t, 0.0, 0.3))
+        d.text((th.TEXT_X, th.H * 0.26), title, font=th.font(50, bold=False),
+               fill=th.MUTED + (a,))
+
+    top = th.H * 0.36
+    gap = min(190, (th.H * 0.42) / n)
+    x_nodes = th.TEXT_X + 40
+    step_len = max(0.4, (dur - 1.2) / n)
+
+    # 竖线：随进度长出来
+    grow = mo.clamp(t / max(0.3, dur - 0.6))
+    d.line([(x_nodes, top), (x_nodes, top + gap * (n - 1) * grow + 1)],
+           fill=(60, 66, 76, 255), width=4)
+
+    for i, it in enumerate(items):
+        start = 0.35 + i * step_len
+        k = mo.ease_out_back(mo.progress(t, start, start + 0.45), 1.6)
+        if k <= 0:
+            continue
+        done = t >= start + step_len * 0.75
+        cy = top + gap * i
+        r = 26 * (0.7 + 0.3 * k)
+
+        # 节点
+        fill_c = th.ACCENT + (255,) if done else (34, 38, 46, 255)
+        d.ellipse([x_nodes - r, cy - r, x_nodes + r, cy + r], fill=fill_c,
+                  outline=th.ACCENT + (200,), width=3)
+        if done:
+            d.text((x_nodes, cy), "✓", font=th.font(int(r * 1.2), bold=True),
+                   fill=(18, 18, 20, 255), anchor="mm")
+        else:
+            d.text((x_nodes, cy), str(i + 1), font=th.font(int(r * 1.1), bold=True),
+                   fill=th.INK + (220,), anchor="mm")
+
+        # 标题与补充
+        a = int(255 * mo.clamp(k))
+        off = int(30 * (1 - mo.clamp(k)))
+        d.text((x_nodes + 74 + off, cy - 26), str(it.get("title", ""))[:8],
+               font=th.font(52, bold=True), fill=th.INK + (a,))
+        if it.get("desc"):
+            d.text((x_nodes + 74 + off, cy + 22), str(it["desc"])[:14],
+                   font=th.font(34, bold=False), fill=th.MUTED + (a,))
+    return _blend(base, ov)
+
+
+def meter(base, t, dur, spec, assets):
+    """仪表盘：指针从起点弹到目标值，落定后数字与判词出现。"""
+    ov, d = _overlay(base)
+    value = float(spec.get("value", 0))
+    vmax = float(spec.get("max", 100))
+    label = spec.get("label") or ""
+    verdict = spec.get("verdict") or ""
+
+    cx, cy = th.W // 2, int(th.H * 0.46)
+    r = 300
+    start_ang, end_ang = 150, 390     # 顺时针 240 度
+
+    # 底弧
+    d.arc([cx - r, cy - r, cx + r, cy + r], start_ang, end_ang,
+          fill=(48, 52, 60, 255), width=26)
+
+    p = mo.spring(t, freq=1.5, damping=0.62)
+    frac = mo.clamp(value / vmax) * p
+    ang = math.radians(start_ang + (end_ang - start_ang) * frac)
+    d.arc([cx - r, cy - r, cx + r, cy + r], start_ang, start_ang + (end_ang - start_ang) * frac,
+          fill=th.ACCENT + (255,), width=26)
+    # 指针
+    d.line([(cx, cy), (cx + math.cos(ang) * (r - 20), cy + math.sin(ang) * (r - 20))],
+           fill=th.INK + (255,), width=8)
+    d.ellipse([cx - 12, cy - 12, cx + 12, cy + 12], fill=th.INK + (255,))
+
+    shown = int(value * p)
+    d.text((cx, cy + 70), str(shown), font=th.font(120, bold=True),
+           fill=th.INK + (255,), anchor="mm")
+    if label:
+        d.text((cx, cy + 160), label, font=th.font(40, bold=False),
+               fill=th.MUTED + (255,), anchor="mm")
+    if verdict:
+        a = int(255 * mo.progress(t, 0.9, 1.3))
+        d.text((cx, cy + 230), verdict, font=th.font(46, bold=True),
+               fill=th.ACCENT + (a,), anchor="mm")
+    return _blend(base, ov)
+
+
+def price(base, t, dur, spec, assets):
+    """价格卡：原价划线，现价弹出，下面一行条件。"""
+    ov, d = _overlay(base)
+    now = spec.get("now", "")
+    old = spec.get("old") or ""
+    note = spec.get("note") or ""
+    unit = spec.get("unit") or ""
+
+    cy = th.H * 0.44
+    if old:
+        f_old = th.font(64, bold=False)
+        a = int(255 * mo.progress(t, 0.0, 0.3))
+        d.text((th.W / 2, cy - 110), old, font=f_old, fill=th.MUTED + (a,), anchor="mm")
+        strike = mo.ease_out_cubic(mo.progress(t, 0.25, 0.7))
+        w = f_old.getlength(old)
+        if strike > 0:
+            d.line([(th.W / 2 - w / 2 - 8, cy - 108),
+                    (th.W / 2 - w / 2 - 8 + (w + 16) * strike, cy - 108)],
+                   fill=th.ACCENT_2 + (240,), width=8)
+
+    e = mo.spring(t, freq=1.8, damping=0.55)
+    scale = 0.8 + 0.2 * e
+    f_now = th.font(int(190 * scale), bold=True)
+    d.text((th.W / 2, cy + 30), str(now), font=f_now, fill=th.ACCENT + (255,), anchor="mm")
+    if unit:
+        d.text((th.W / 2, cy + 150), unit, font=th.font(44, bold=False),
+               fill=th.INK + (220,), anchor="mm")
+    if note:
+        a = int(255 * mo.progress(t, 0.7, 1.0))
+        d.text((th.W / 2, cy + 230), note, font=th.font(38, bold=False),
+               fill=th.MUTED + (a,), anchor="mm")
+    return _blend(base, ov)
+
+
+def quote(base, t, dur, spec, assets):
+    """引用卡：大引号 + 原文 + 出处。只摘原话，不改写成更夸张的版本。"""
+    ov, d = _overlay(base)
+    text = spec.get("text") or ""
+    who = spec.get("who") or ""
+
+    d.text((th.TEXT_X, th.H * 0.26), "“", font=th.font(220, bold=True),
+           fill=th.ACCENT + (110,))
+    fnt = th.font(spec.get("size", 62), bold=True)
+    lines = th.wrap(text, fnt, th.TEXT_MAX_W - 40)
+    a = int(255 * mo.progress(t, 0.1, 0.5))
+    y = th.H * 0.40
+    for i, ln in enumerate(lines[:5]):
+        d.text((th.TEXT_X + 20, y + i * int(fnt.size * 1.35)), ln, font=fnt,
+               fill=th.INK + (a,))
+    if who:
+        wa = int(255 * mo.progress(t, 0.6, 0.9))
+        yy = y + len(lines[:5]) * int(fnt.size * 1.35) + 30
+        d.line([(th.TEXT_X + 20, yy), (th.TEXT_X + 100, yy)], fill=th.ACCENT + (wa,), width=5)
+        d.text((th.TEXT_X + 20, yy + 26), who, font=th.font(40, bold=False),
+               fill=th.MUTED + (wa,))
+    return _blend(base, ov)
+
+
 def cta(base, t, dur, spec, assets):
     """收尾：一句行动指令 + 账号名。慢推进制造收束感。"""
     ov, d = _overlay(base)
@@ -472,6 +652,10 @@ SHOTS = {
     "art": art,
     "broll": broll,
     "char": char,
+    "steps": steps,
+    "meter": meter,
+    "price": price,
+    "quote": quote,
     "cta": cta,
 }
 

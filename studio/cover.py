@@ -34,7 +34,7 @@ def build(script: dict, out_dir: Path) -> dict:
     if kicker:
         d.text((PAD, 78), kicker, font=th.font(44, bold=True), fill=(18, 18, 20, 255), anchor="la")
 
-    # 标题：字号从 132 往下降，直到每行都不超过 952 且不超过 3 行
+    # 标题：字号从 132 往下降，直到 ≤2 行且每行不超宽（2 行是手机首屏能读完的上限）
     max_w = COVER_W - PAD * 2
     size = 132
     lines: list[str] = []
@@ -43,7 +43,7 @@ def build(script: dict, out_dir: Path) -> dict:
         lines = []
         for raw in title.split("\n"):
             lines.extend(th.wrap(raw, fnt, max_w))
-        if len(lines) <= 3 and all(fnt.getlength(l) <= max_w for l in lines):
+        if len(lines) <= 2 and all(fnt.getlength(l) <= max_w for l in lines):
             break
         size -= 8
     fnt = th.font(size, bold=True)
@@ -51,6 +51,15 @@ def build(script: dict, out_dir: Path) -> dict:
     lh = int(size * 1.24)
     for i, ln in enumerate(lines):
         d.text((PAD, top + i * lh), ln, font=fnt, fill=th.INK + (255,), anchor="la")
+
+    # 高亮胶囊：一句话说清卖点（brewreel 的 caption 规则：一行、≤12 字）
+    pill = script.get("cover_pill")
+    if pill:
+        pf = th.font(38, bold=True)
+        pw = int(pf.getlength(pill)) + 52
+        py = top + len(lines) * lh + 40
+        d.rounded_rectangle([PAD, py, PAD + pw, py + 66], radius=33, fill=th.ACCENT + (255,))
+        d.text((PAD + 26, py + 33), pill, font=pf, fill=(18, 18, 20, 255), anchor="lm")
 
     # 产品：右下，控制在 440 以内，避免压到标题
     box = 440

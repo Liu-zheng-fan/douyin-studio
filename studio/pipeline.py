@@ -31,10 +31,11 @@ def _prepare_assets(shots: list[dict], out: Path, fps: int) -> dict:
     for s in shots:
         kind = s.get("type")
 
-        # art 镜头可以只写 prompt，由即梦生成后再套风格
-        if kind == "art" and not s.get("image") and s.get("prompt"):
-            from . import imggen
-            prompt = s["prompt"]
+        # art 镜头可以只写 prompt / prompt_spec，由即梦生成后再套风格
+        if kind == "art" and not s.get("image") and (s.get("prompt") or s.get("prompt_spec")):
+            from . import imggen, prompt as prompt_mod
+            spec_ = s.get("prompt_spec")
+            prompt = prompt_mod.build(**spec_) if spec_ else s["prompt"]
             # 风格库注入：把 341 条风格里的「风格提示词」拼进生图 prompt
             kw = s.get("style_keyword")
             if kw:

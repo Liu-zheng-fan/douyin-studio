@@ -12,6 +12,14 @@ SPECS = {
     "reveal": {"name": "不锈钢盆", "labels": ["便宜", "耐摔"]},
     "bullets": {"title": "三条", "items": ["一", "二", "三"]},
     "cta": {"text": ["看我第几天开张"], "sub": "关注一下", "user": "@测试"},
+    "char": {"text": ["缺形象时退化成文字卡"], "caption_y": 0.26},
+    "steps": {"title": "怎么用", "items": [
+        {"title": "打开", "desc": "连上就行"},
+        {"title": "点生成", "desc": "一分钟"},
+        {"title": "改两句", "desc": "你只管把关"}]},
+    "meter": {"value": 82, "max": 100, "label": "满意度", "verdict": "还不错"},
+    "price": {"now": "39.9", "old": "59.9", "unit": "元", "note": "包邮 · 七天无理由"},
+    "quote": {"text": "这个盆比我想的厚实，装汤也不烫手。", "who": "—— 一位买家"},
 }
 
 

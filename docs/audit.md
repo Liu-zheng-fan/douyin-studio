@@ -149,3 +149,18 @@
 
 **"形态不匹配"和"我懒得看"是两回事，我当时混着用了。**
 以后凡是写"不适用"，必须附一句"我读过 xx 文件，因为 yy 所以不取"。
+
+---
+
+## 补课进度（2026-11-11 更新）
+
+| 项 | 状态 | 落点 |
+|---|---|---|
+| 读音校正（多音字同音替换） | ✅ | `studio/pronounce.py`，53 条规则 + 数字读法 |
+| brewreel 镜头规格 | ✅ 部分 | 新增 `steps` / `meter` / `price` / `quote`，`number` 支持 from/prefix/showFrom |
+| directorx 提示词工程 | ✅ 部分 | `studio/prompt.py`：六槽位 + 6 个画风预设 + 负面压制 |
+| douyin-script-pro 三道预检 | ✅ | `ops/gates.py` 的 `precheck()`：复审生存 / 戏剧动作 / 潜台词 |
+| video-cover 要点 | ✅ 部分 | 封面限两行、新增 `cover_pill` 高亮胶囊 |
+| Canvas 引擎 | ❌ 未做 | 需 Chrome + Playwright |
+| 调色工作台 / NLE 导出 | ❌ 未做 | 有真实素材后再做 |
+| brewreel 其余 15 个镜头 | ⏳ 待做 | 需要真实截图/录屏的几类先放着 |

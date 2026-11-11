@@ -93,6 +93,13 @@ def status() -> dict:
     except Exception as exc:
         info["characters"] = {"count": 0, "error": str(exc)}
 
+    # 素材库
+    try:
+        from studio import broll
+        info["broll"] = {"count": len(broll.index()), "dir": str(broll.DEFAULT_DIR)}
+    except Exception as exc:
+        info["broll"] = {"count": 0, "error": str(exc)}
+
     # 台账
     try:
         from ops import ledger

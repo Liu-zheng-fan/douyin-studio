@@ -18,6 +18,8 @@ frames/
 # local assets (large / third-party license) - keep repo small
 characters/**/*.png
 assets/broll/
+assets/stylelib/
+vendor/
 
 # local state and credentials
 ops/state/

@@ -18,6 +18,7 @@ import re
 from pathlib import Path
 
 DEFAULT_ROOTS = [
+    Path(__file__).resolve().parent.parent / "assets" / "stylelib",   # 随项目走，优先
     Path.home() / "Documents" / "风格提示词",
     Path("C:/Users/Root/Documents/风格提示词"),
 ]

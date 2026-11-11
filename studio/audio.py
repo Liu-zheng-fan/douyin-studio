@@ -157,6 +157,20 @@ def synthesize(
     out_dir.mkdir(parents=True, exist_ok=True)
     resolved = resolve_voice(voice)
 
+    # 读音校正：只改送进 TTS 的文本，字幕仍用 script.json 里的原文
+    from . import pronounce
+    fixed = []
+    hits = 0
+    for t in texts:
+        safe, applied = pronounce.fix(t)
+        fixed.append(safe)
+        hits += len(applied)
+        for a in applied:
+            print(f"  读音：{a['phrase']} → {a['repl']}（{a['why']}）")
+    texts = fixed
+    if hits:
+        print(f"读音校正 {hits} 处")
+
     if engine in ("auto", "edge"):
         try:
             return _edge(texts, out_dir, resolved, rate, pitch), "edge"

@@ -39,7 +39,7 @@ python -m douyin pack   dist/demo-04-first        # 3. 投递审批箱
 | `characters/` | **形象库**：`characters/<角色>/<动作>.png`（透明 PNG，文件名=动作） | 要换形象时 |
 | `assets/broll/` | **素材库**：147 段真实镜头（92MB），`studio/broll.py` 可按关键词挑 | 要真实画面时 |
 | `assets/stylelib/` | 341 条风格提示词（13.6MB，随项目走不用依赖外部路径） | 要指定画风时 |
-| `vendor/` | fy 的原始 TSX 实现，仅作参考（另一种语言，不参与运行） | 想移植 Canvas 时 |
+| `vendor/` | 参考源码与文档：fy 的 TSX、brewreel 镜头规格、directorx 提示词工程、dsh 的 19 个 skill（本地参考，不参与运行） | 想移植某项能力时先来这里翻 |
 
 ## 状态在哪
 

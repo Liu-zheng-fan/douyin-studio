@@ -500,20 +500,23 @@ def steps(base, t, dur, spec, assets):
         d.ellipse([x_nodes - r, cy - r, x_nodes + r, cy + r], fill=fill_c,
                   outline=th.ACCENT + (200,), width=3)
         if done:
-            d.text((x_nodes, cy), "✓", font=th.font(int(r * 1.2), bold=True),
-                   fill=(18, 18, 20, 255), anchor="mm")
+            # 用线段画勾：字体里没有 ✓ 字形，直接打字符会变成豆腐块
+            d.line([(x_nodes - r * 0.45, cy + r * 0.02),
+                    (x_nodes - r * 0.10, cy + r * 0.36)], fill=(18, 18, 20, 255), width=7)
+            d.line([(x_nodes - r * 0.10, cy + r * 0.36),
+                    (x_nodes + r * 0.48, cy - r * 0.34)], fill=(18, 18, 20, 255), width=7)
         else:
             d.text((x_nodes, cy), str(i + 1), font=th.font(int(r * 1.1), bold=True),
                    fill=th.INK + (220,), anchor="mm")
 
-        # 标题与补充
+        # 标题与补充：两行之间留足行距，别叠在一起
         a = int(255 * mo.clamp(k))
         off = int(30 * (1 - mo.clamp(k)))
-        d.text((x_nodes + 74 + off, cy - 26), str(it.get("title", ""))[:8],
-               font=th.font(52, bold=True), fill=th.INK + (a,))
+        d.text((x_nodes + 74 + off, cy - 44), str(it.get("title", ""))[:8],
+               font=th.font(50, bold=True), fill=th.INK + (a,))
         if it.get("desc"):
-            d.text((x_nodes + 74 + off, cy + 22), str(it["desc"])[:14],
-                   font=th.font(34, bold=False), fill=th.MUTED + (a,))
+            d.text((x_nodes + 74 + off, cy + 20), str(it["desc"])[:14],
+                   font=th.font(30, bold=False), fill=th.MUTED + (a,))
     return _blend(base, ov)
 
 

@@ -1,0 +1,78 @@
+{
+  "name": "demo-05-shots",
+  "title": "四种新镜头，一次看全",
+  "desc": "流程 / 仪表 / 价格 / 引用，四种卡片的测试片。",
+  "tags": ["测试", "镜头"],
+  "handle": "@想要白饭的小鲸鱼",
+  "cover_title": "四种\n新镜头",
+  "cover_kicker": "测试片",
+  "cover_pill": "一次看全",
+  "ai_generated": true,
+  "hook_type": "反常识",
+  "golden": "不是画面不够，是说法不对",
+  "conflict": "我想讲清楚一个盆，但没人愿意听参数",
+  "fps": 30,
+  "voice": "narrator",
+  "rate": "-4%",
+  "pitch": "-2Hz",
+  "bgm": "calm",
+  "field": "particles",
+  "transition": "crossfade",
+  "subtitle_y": 1640,
+  "shots": [
+    {
+      "type": "hook",
+      "say": "四种镜头，讲清一个盆。",
+      "fx": "type",
+      "text": ["四种镜头"],
+      "sub": "讲清一个盆"
+    },
+    {
+      "type": "char",
+      "say": "先说怎么用。",
+      "action": "白饭",
+      "caption_y": 0.22,
+      "kicker": "第一步",
+      "text": ["怎么用"]
+    },
+    {
+      "type": "steps",
+      "say": "打开、装饭、端走。",
+      "title": "三步就够",
+      "items": [
+        {"title": "打开盖子", "desc": "一只手就行"},
+        {"title": "装饭", "desc": "装满不撒"},
+        {"title": "端走", "desc": "不烫手"}
+      ]
+    },
+    {
+      "type": "meter",
+      "say": "厚不厚，拿卡尺量。",
+      "value": 1.2,
+      "max": 2,
+      "label": "盆壁厚度（毫米）",
+      "verdict": "比常见的厚一倍"
+    },
+    {
+      "type": "price",
+      "say": "原价五十九，现在三十九。",
+      "now": "39.9",
+      "old": "¥59.9",
+      "unit": "元 · 包邮",
+      "note": "七天无理由"
+    },
+    {
+      "type": "quote",
+      "say": "有人这么说。",
+      "text": "这个盆比我想的厚实，装汤也不烫手。",
+      "who": "—— 一位买家"
+    },
+    {
+      "type": "cta",
+      "say": "想要就看看。",
+      "text": ["想看就点"],
+      "sub": "评论区问我",
+      "user": "@想要白饭的小鲸鱼"
+    }
+  ]
+}

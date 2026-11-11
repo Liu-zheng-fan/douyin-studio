@@ -39,6 +39,8 @@ TOP_FIELDS = {
     "ai_generated": "必须 true（抖音要求 AI 标识）",
     "hook_type": "八型之一，用于评分",
     "golden": "会被截图的那句金句",
+    "conflict": "戏剧动作预检用：我想 X，但 Y 挡着",
+    "cover_pill": "封面高亮胶囊，一行 ≤12 字",
     "fps": "默认 30",
     "voice": "narrator/anchor/warm/lively/passion",
     "rate": "语速，如 -4%",

@@ -173,8 +173,8 @@ def build(
         speech, used_engine = audio.durations(
             texts, audio_dir,
             voice or script.get("voice", audio.DEFAULT_VOICE),
-            script.get("rate", audio.DEFAULT_RATE),
-            script.get("pitch", audio.DEFAULT_PITCH),
+            script.get("rate") or audio.tuning_for(voice or script.get("voice")).get("rate") or audio.DEFAULT_RATE,
+            script.get("pitch") or audio.tuning_for(voice or script.get("voice")).get("pitch") or audio.DEFAULT_PITCH,
             engine,
         )
         print(f"配音引擎：{used_engine}")
@@ -210,6 +210,19 @@ def build(
     # 4) 渲染帧（先预处理图片/视频素材）
     fps = int(script.get("fps", th.FPS))
     assets = _prepare_assets(shots, out, fps)
+    # 全片铺底素材：把 81% 的黑填掉
+    bg_video = script.get("bg_video")
+    if bg_video:
+        from . import art as art_mod
+        p = Path(bg_video)
+        if not p.is_absolute():
+            p = (script_path.parent / p) if (script_path.parent / p).exists() else (Path.cwd() / p)
+        if p.exists():
+            assets["__bg__"] = art_mod.extract_frames(p, out / "bg", (th.W, th.H), fps,
+                                                      blur=float(script.get("bg_blur", 12)))
+            print(f"铺底素材：{p.name}（{len(assets['__bg__'])} 帧）")
+        else:
+            print(f"[警告] bg_video 不存在：{p}")
     n = render.render_frames(script, durations, starts, subs, frames_dir, assets)
     print(f"渲染 {n} 帧，用时 {time.time() - t_start:.0f}s")
 

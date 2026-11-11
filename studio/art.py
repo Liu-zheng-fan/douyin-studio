@@ -135,22 +135,27 @@ def scrim(img: Image.Image, strength: float = 0.72, top: bool = True, bottom: bo
 
 # ------------------------------------------------------------------ 视频抽帧
 def extract_frames(path: Path, out_dir: Path, size: tuple[int, int], fps: int = 30,
-                   max_frames: int = 240) -> list[Path]:
-    """把一段素材视频抽成帧。用于「真实镜头做背景」的 broll 镜头。"""
+                   max_frames: int = 240, blur: float = 0) -> list[Path]:
+    """把一段素材视频抽成帧。用于「真实镜头做背景」的 broll 镜头。
+
+    blur>0 时在 ffmpeg 里就糊掉——铺底素材常常带大字，不糊会像图层没对齐。
+    """
     from . import ff
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    key = hashlib.sha1(f"{path}|{size}|{fps}|{path.stat().st_mtime_ns}".encode()).hexdigest()[:12]
+    key = hashlib.sha1(f"{path}|{size}|{fps}|{blur}|{path.stat().st_mtime_ns}".encode()).hexdigest()[:12]
     cache = out_dir / key
     if cache.exists() and any(cache.iterdir()):
         return sorted(cache.glob("*.png"))
 
     cache.mkdir(parents=True, exist_ok=True)
     w, h = size
+    vf = f"fps={fps},scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h}"
+    if blur > 0:
+        vf += f",gblur=sigma={blur}"
     ff.run([
         ff.ffmpeg(), "-y", "-loglevel", "error", "-i", str(path),
-        "-vf", f"fps={fps},scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h}",
-        "-frames:v", str(max_frames), str(cache / "%05d.png"),
+        "-vf", vf, "-frames:v", str(max_frames), str(cache / "%05d.png"),
     ])
     frames = sorted(cache.glob("*.png"))
     if not frames:

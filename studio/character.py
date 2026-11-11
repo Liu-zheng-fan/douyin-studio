@@ -91,12 +91,20 @@ def describe(dirname: str | Path | None = None) -> dict:
 
 def place(frame: Image.Image, path: Path, t: float = 0.0,
           height_ratio: float = 0.56, bottom: int = 0,
-          bob: float = 3.0, shadow: bool = True) -> Image.Image:
-    """把角色图贴到画面底部居中，带轻微浮动与柔影。"""
+          bob: float = 3.0, shadow: bool = True, sway: float = 2.0) -> Image.Image:
+    """把角色图贴到画面底部居中，带轻微浮动 + 摇摆 + 呼吸缩放 + 柔影。
+
+    只做上下浮动会像贴纸；加一点摇摆和呼吸，才像"站在那儿"。
+    """
     sprite = Image.open(path).convert("RGBA")
     target_h = max(1, int(frame.height * height_ratio))
     scale = target_h / sprite.height
-    sprite = sprite.resize((max(1, int(sprite.width * scale)), target_h), Image.LANCZOS)
+    breathe = 1.0 + 0.012 * math_sin(t * 2.1)
+    sprite = sprite.resize((max(1, int(sprite.width * scale * breathe)), int(target_h * breathe)),
+                           Image.LANCZOS)
+    if sway:
+        sprite = sprite.rotate(math_sin(t * 1.3) * sway, resample=Image.BICUBIC,
+                               expand=True, fillcolor=(0, 0, 0, 0))
 
     dy = int(math_sin(t * 1.7) * bob)
     x = (frame.width - sprite.width) // 2

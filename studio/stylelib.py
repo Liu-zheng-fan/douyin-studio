@@ -35,7 +35,7 @@ def resolve_root(root: str | Path | None = None) -> Path:
 
 
 def _parse(md: Path) -> dict:
-    text = md.read_text(encoding="utf-8", errors="replace")
+    text = md.read_text(encoding="utf-8-sig", errors="replace")
     title = ""
     m = re.search(r"^#\s+(.+)$", text, re.M)
     if m:
@@ -65,7 +65,7 @@ def index(root: str | Path | None = None, rebuild: bool = False) -> list[dict]:
     base = resolve_root(root)
     if not rebuild and CACHE.exists():
         try:
-            data = json.loads(CACHE.read_text(encoding="utf-8"))
+            data = json.loads(CACHE.read_text(encoding="utf-8-sig"))
             if data.get("root") == str(base):
                 return data["entries"]
         except Exception:

@@ -32,7 +32,7 @@ def load() -> list[dict]:
     if not LEDGER.exists():
         return []
     out = []
-    for line in LEDGER.read_text(encoding="utf-8").splitlines():
+    for line in LEDGER.read_text(encoding="utf-8-sig").splitlines():
         line = line.strip()
         if line:
             out.append(json.loads(line))
@@ -77,7 +77,7 @@ def main(argv=None) -> int:
         rows = load()
         print(json.dumps({"ok": True, "data": {"count": len(rows), "rows": rows}}, ensure_ascii=False))
     else:
-        meta = json.loads((a.dist / "meta.json").read_text(encoding="utf-8"))
+        meta = json.loads((a.dist / "meta.json").read_text(encoding="utf-8-sig"))
         rec = {"video_id": "", "title": meta.get("title"), "duration": meta.get("duration"),
                "hook_type": "", "cover_style": "", "metrics": {}, "notes": "待填数据"}
         print(json.dumps({"ok": True, "data": add(rec),

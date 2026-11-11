@@ -30,11 +30,19 @@ LEAD = 0.18
 TAIL = 0.30
 
 VOICES = {
-    "narrator": "zh-CN-YunxiNeural",
-    "anchor": "zh-CN-YunyangNeural",
-    "warm": "zh-CN-XiaoxiaoNeural",
-    "lively": "zh-CN-XiaoyiNeural",
+    "narrator": "zh-CN-YunxiNeural",     # 年轻男声，对话感
+    "anchor": "zh-CN-YunyangNeural",     # 播音腔
+    "warm": "zh-CN-XiaoxiaoNeural",      # 温暖女声
+    "lively": "zh-CN-XiaoyiNeural",      # 活泼女声
+    "moe": "zh-CN-XiaoyiNeural",         # 萌妹：活泼女声 + 提音高，配小鲸鱼形象
     "passion": "zh-CN-YunjianNeural",
+}
+
+# 每个音色配套的语速/音高，避免"选了女声还是念稿腔"
+VOICE_TUNING = {
+    "moe": {"rate": "-2%", "pitch": "+10Hz"},
+    "lively": {"rate": "0%", "pitch": "+6Hz"},
+    "warm": {"rate": "-4%", "pitch": "+2Hz"},
 }
 
 DEFAULT_VOICE = "narrator"
@@ -191,6 +199,11 @@ def durations(texts: list[str], out_dir: Path, voice: str = DEFAULT_VOICE,
               engine: str = "auto") -> tuple[list[float], str]:
     paths, used = synthesize(texts, out_dir, voice, rate, pitch, engine)
     return [wav_seconds(p) for p in paths], used
+
+
+def tuning_for(voice: str | None) -> dict:
+    """音色配套的语速/音高。配萌妹形象却用男声，问题就出在这。"""
+    return VOICE_TUNING.get(voice or "", {})
 
 
 def build_track(shot_durations: list[float], audio_dir: Path, out_wav: Path) -> Path:

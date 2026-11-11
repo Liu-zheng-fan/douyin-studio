@@ -39,7 +39,7 @@ def index(dirname: Path | None = None, rebuild: bool = False) -> list[dict]:
     cache = base / "index.json"
     if cache.exists() and not rebuild:
         try:
-            return json.loads(cache.read_text(encoding="utf-8"))["items"]
+            return json.loads(cache.read_text(encoding="utf-8-sig"))["items"]
         except Exception:
             pass
     return rebuild_index(base)

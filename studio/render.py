@@ -82,6 +82,8 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
     sub_y = int(script.get("subtitle_y", 1430))
     field = script.get("field")            # noise / dots / particles / flow
     drift = float(script.get("drift", 0.012))   # 每镜缓慢推近的幅度，0 关闭
+    bg_frames = assets.get("__bg__")       # 真实素材铺底（fills the frame）
+    bg_dim = float(script.get("bg_dim", 0.42))
     bg = th.backdrop(variant)
 
     n = 0
@@ -93,7 +95,15 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
         for k in range(count):
             t_local = k / fps
             t_abs = starts[idx] + t_local
-            base = fields.render(field, t_abs) if field else bg.copy()
+            if bg_frames:
+                bi = min(len(bg_frames) - 1, int(t_abs * fps) % len(bg_frames))
+                base = Image.open(bg_frames[bi]).convert("RGB")
+                if bg_dim > 0:
+                    base = Image.blend(base, Image.new("RGB", base.size, th.BG), bg_dim)
+            elif field:
+                base = fields.render(field, t_abs)
+            else:
+                base = bg.copy()
             frame = shot_lib.render(base, shot, t_local, dur, assets)
             if drift > 0:
                 # 整镜缓慢推近 1.0 → 1+drift。没有它，静止的字卡在手机上像截图。
@@ -141,7 +151,7 @@ def write_manifest(out: Path, script: dict, durations, starts, subs, frame_count
 
 
 def load_script(path: Path) -> dict:
-    script = json.loads(path.read_text(encoding="utf-8"))
+    script = json.loads(path.read_text(encoding="utf-8-sig"))
     if "shots" not in script or not script["shots"]:
         raise SystemExit("script.json 里没有 shots")
     script.setdefault("fps", th.FPS)

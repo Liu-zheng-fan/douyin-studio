@@ -450,8 +450,8 @@ def char(base, t, dur, spec, assets):
         return hook(base, t, dur, fallback, assets)
 
     frame = character.place(base.convert("RGB"), Path(path), t,
-                            float(spec.get("height", 0.56)),
-                            int(spec.get("bottom", 0)))
+                            float(spec.get("height", 0.54)),
+                            int(spec.get("bottom", 70)))
     cy = float(spec.get("caption_y", 0.30))
     frame = _band(frame, int(th.H * (cy - 0.08)), int(th.H * (cy + 0.26)),
                   int(spec.get("band", 170)))

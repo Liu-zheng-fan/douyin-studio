@@ -116,6 +116,13 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
             frame = th.ambient(frame, t_abs)
             if script.get("grade"):
                 frame = th.grade(frame, script["grade"])
+            post = script.get("post") or {}
+            if post:
+                from . import postfx
+                frame = postfx.apply(frame, t_abs, n,
+                                     bloom=float(post.get("bloom", 0)),
+                                     grain=float(post.get("grain", 0)),
+                                     vignette=float(post.get("vignette", 0)))
             if prev_last is not None and trans_kind != "none" and t_local < trans_dur:
                 frame = transitions.blend(prev_last, frame, t_local / trans_dur,
                                           trans_kind, trans_dir)

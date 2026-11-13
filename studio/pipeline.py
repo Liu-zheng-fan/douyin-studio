@@ -150,7 +150,8 @@ def build(
     except Exception as exc:  # 没装 ops 包也不该挡住渲染
         print(f"[跳过] 脚本闸门不可用：{exc}")
 
-    if gate and not gate["pass"] and (force or script.get("strict_gates")):
+    # 闸门默认硬卡：分数不够就不渲染。--force 才是放行开关（之前写反了）。
+    if gate and not gate["pass"] and not force:
         raise SystemExit(f"\n脚本评分 {gate['score']}/{gate['max']} 未达阈值，未渲染。"
                          f"改完再跑，或加 --force 强行出片。")
 
@@ -160,6 +161,19 @@ def build(
 
     # 2) 配音
     shots = script["shots"]
+
+    # 读音：先把没覆盖到的高危多音字喊出来（check 之前是死代码，没人调用）
+    try:
+        from . import pronounce
+        chars = sorted({r["char"]
+                        for s in shots
+                        for r in pronounce.check(s.get("say") or "")
+                        if r["type"] == "risk"})
+        if chars:
+            print(f"[读音] 这些字没把握：{'、'.join(chars)}——听一遍再发")
+    except Exception:
+        pass
+
     engine = script.get("tts_engine", "auto")
     if silent:
         speech = [max(1.2, len(s.get("say") or "") * 0.16) for s in shots]
@@ -307,6 +321,8 @@ def build(
         "manifest": str(manifest.resolve()),
         "compliance": {"blocked": bool(blocks), "warnings": len(warns),
                        "items": [f.as_dict() for f in findings]},
+        # 给 qc 用：单句字幕最长多少字（qc 读不到这个值，那条检查就是死代码）
+        "max_subtitle_chars": max((len(t) for t in subs), default=0),
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }
     mp = out / "meta.json"

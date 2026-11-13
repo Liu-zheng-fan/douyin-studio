@@ -100,6 +100,16 @@ def inspect(video: Path, subtitle_chars: int | None = None) -> dict:
     if not video.exists():
         return {"ok": False, "issues": [{"level": "block", "code": "missing", "message": "成片不存在"}]}
 
+    # 没显式传字幕长度时，从同目录 meta.json 读——否则这条检查永远是死代码
+    if subtitle_chars is None:
+        mp = video.parent / "meta.json"
+        if mp.exists():
+            try:
+                import json
+                subtitle_chars = json.loads(mp.read_text(encoding="utf-8-sig")).get("max_subtitle_chars")
+            except Exception:
+                pass
+
     meta = _probe(video)
     dur = meta["duration"] or 0.0
 

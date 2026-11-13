@@ -1,0 +1,169 @@
+{
+  "_readme": "镜头参数契约：类型/必填/上限/枚举的唯一来源。校验器、文档、报错提示都读它。加镜头只改这里 + shots.py 一个函数。",
+  "hook": {
+    "caption": "required",
+    "params": {
+      "text": {"type": "list", "required": true, "minItems": 1, "maxItems": 2, "maxLen": 14},
+      "sub": {"type": "str", "maxLen": 22},
+      "fx": {"type": "enum", "values": ["type", "wave", "pop", "none"]},
+      "size": {"type": "int", "min": 48, "max": 160}
+    }
+  },
+  "number": {
+    "caption": "optional",
+    "params": {
+      "value": {"type": "num", "required": true},
+      "from": {"type": "num"},
+      "label": {"type": "str", "maxLen": 14},
+      "prefix": {"type": "str", "maxLen": 2},
+      "unit": {"type": "str", "maxLen": 6},
+      "suffix": {"type": "str", "maxLen": 6},
+      "note": {"type": "str", "maxLen": 40},
+      "sub": {"type": "str", "maxLen": 24},
+      "showFrom": {"type": "bool"},
+      "decimals": {"type": "int", "min": 0, "max": 2}
+    }
+  },
+  "split": {
+    "caption": "optional",
+    "params": {
+      "a": {"type": "str", "required": true, "maxLen": 14},
+      "b": {"type": "str", "required": true, "maxLen": 14},
+      "tag": {"type": "str", "maxLen": 14}
+    }
+  },
+  "line": {
+    "caption": "optional",
+    "params": {
+      "a": {"type": "str", "required": true, "maxLen": 14},
+      "b": {"type": "str", "required": true, "maxLen": 14}
+    }
+  },
+  "reveal": {
+    "caption": "optional",
+    "params": {
+      "text": {"type": "str", "required": true, "maxLen": 14},
+      "image": {"type": "str"},
+      "prompt": {"type": "str"}
+    }
+  },
+  "bullets": {
+    "caption": "optional",
+    "params": {
+      "items": {"type": "list", "required": true, "minItems": 2, "maxItems": 4, "maxLen": 16},
+      "title": {"type": "str", "maxLen": 14}
+    }
+  },
+  "art": {
+    "caption": "optional",
+    "params": {
+      "image": {"type": "str"},
+      "prompt": {"type": "str", "maxLen": 400},
+      "prompt_spec": {"type": "dict"},
+      "gen_size": {"type": "enum", "values": ["720x1280", "1024x1024", "1280x720"]},
+      "style": {"type": "str"},
+      "style_keyword": {"type": "str"},
+      "focus": {"type": "num", "min": 0, "max": 1},
+      "caption_y": {"type": "num", "min": 0, "max": 1},
+      "kicker": {"type": "str", "maxLen": 10},
+      "text": {"type": "list", "maxItems": 2, "maxLen": 14},
+      "sub": {"type": "str", "maxLen": 24}
+    }
+  },
+  "broll": {
+    "caption": "optional",
+    "params": {
+      "video": {"type": "str", "required": true},
+      "kicker": {"type": "str", "maxLen": 10},
+      "text": {"type": "list", "maxItems": 2, "maxLen": 14},
+      "sub": {"type": "str", "maxLen": 24},
+      "scrim": {"type": "num", "min": 0, "max": 1}
+    }
+  },
+  "char": {
+    "caption": "optional",
+    "params": {
+      "action": {"type": "str", "required": true, "maxLen": 12},
+      "characters": {"type": "str"},
+      "height": {"type": "num", "min": 0.15, "max": 0.9},
+      "bottom": {"type": "int", "min": 0, "max": 600},
+      "pos": {"type": "enum", "values": ["center", "left", "right"]},
+      "caption_y": {"type": "num", "min": 0, "max": 1},
+      "kicker": {"type": "str", "maxLen": 10},
+      "text": {"type": "list", "maxItems": 2, "maxLen": 14},
+      "sub": {"type": "str", "maxLen": 24},
+      "band": {"type": "int", "min": 0, "max": 255}
+    }
+  },
+  "steps": {
+    "caption": "optional",
+    "params": {
+      "items": {"type": "list", "required": true, "minItems": 2, "maxItems": 4},
+      "title": {"type": "str", "maxLen": 14}
+    },
+    "itemFields": {
+      "title": {"type": "str", "required": true, "maxLen": 8},
+      "desc": {"type": "str", "maxLen": 14}
+    }
+  },
+  "meter": {
+    "caption": "optional",
+    "params": {
+      "value": {"type": "num", "required": true},
+      "max": {"type": "num", "min": 1},
+      "label": {"type": "str", "maxLen": 16},
+      "verdict": {"type": "str", "maxLen": 14}
+    }
+  },
+  "price": {
+    "caption": "optional",
+    "params": {
+      "now": {"type": "str", "required": true, "maxLen": 8},
+      "old": {"type": "str", "maxLen": 8},
+      "unit": {"type": "str", "maxLen": 12},
+      "note": {"type": "str", "maxLen": 20}
+    }
+  },
+  "quote": {
+    "caption": "optional",
+    "params": {
+      "text": {"type": "str", "required": true, "maxLen": 44},
+      "who": {"type": "str", "maxLen": 20},
+      "size": {"type": "int", "min": 40, "max": 88}
+    }
+  },
+  "layers": {
+    "caption": "optional",
+    "params": {
+      "items": {"type": "list", "required": true, "minItems": 2, "maxItems": 4},
+      "title": {"type": "str", "maxLen": 14}
+    },
+    "itemFields": {"title": {"type": "str", "required": true, "maxLen": 16}}
+  },
+  "chips": {
+    "caption": "optional",
+    "params": {
+      "items": {"type": "list", "required": true, "minItems": 2, "maxItems": 8, "maxLen": 8},
+      "title": {"type": "str", "maxLen": 14}
+    }
+  },
+  "cards": {
+    "caption": "optional",
+    "params": {
+      "items": {"type": "list", "required": true, "minItems": 2, "maxItems": 4},
+      "title": {"type": "str", "maxLen": 14}
+    },
+    "itemFields": {
+      "title": {"type": "str", "required": true, "maxLen": 10},
+      "desc": {"type": "str", "maxLen": 16}
+    }
+  },
+  "cta": {
+    "caption": "none",
+    "params": {
+      "text": {"type": "list", "required": true, "minItems": 1, "maxItems": 2, "maxLen": 14},
+      "sub": {"type": "str", "maxLen": 22},
+      "user": {"type": "str", "maxLen": 24}
+    }
+  }
+}

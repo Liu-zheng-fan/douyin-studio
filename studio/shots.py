@@ -524,10 +524,10 @@ def steps(base, t, dur, spec, assets):
         # 标题与补充：两行之间留足行距，别叠在一起
         a = int(255 * mo.clamp(k))
         off = int(30 * (1 - mo.clamp(k)))
-        d.text((x_nodes + 74 + off, cy - 44), str(it.get("title", ""))[:8],
+        d.text((x_nodes + 74 + off, cy - 44), str(it.get("title", "")),
                font=th.font(50, bold=True), fill=th.INK + (a,))
         if it.get("desc"):
-            d.text((x_nodes + 74 + off, cy + 20), str(it["desc"])[:14],
+            d.text((x_nodes + 74 + off, cy + 20), str(it["desc"]),
                    font=th.font(30, bold=False), fill=th.MUTED + (a,))
     return _blend(base, ov)
 
@@ -729,10 +729,10 @@ def cards(base, t, dur, spec, assets):
         y0 = top + r * (ch + gap) + int(26 * (1 - mo.ease_out_cubic(a)))
         _card(d, [x0, y0, x0 + cw, y0 + ch])
         obj = it if isinstance(it, dict) else {"title": str(it)}
-        d.text((x0 + 30, y0 + 40), str(obj.get("title", ""))[:10],
+        d.text((x0 + 30, y0 + 40), str(obj.get("title", "")),
                font=th.font(48, bold=True), fill=th.INK + (int(255 * a),))
         if obj.get("desc"):
-            d.text((x0 + 30, y0 + 116), str(obj["desc"])[:16],
+            d.text((x0 + 30, y0 + 116), str(obj["desc"]),
                    font=th.font(32, bold=False), fill=th.MUTED + (int(255 * a),))
     return _blend(base, ov)
 

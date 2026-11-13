@@ -91,7 +91,8 @@ def describe(dirname: str | Path | None = None) -> dict:
 
 def place(frame: Image.Image, path: Path, t: float = 0.0,
           height_ratio: float = 0.56, bottom: int = 0,
-          bob: float = 3.0, shadow: bool = True, sway: float = 2.0) -> Image.Image:
+          bob: float = 3.0, shadow: bool = True, sway: float = 2.0,
+          align: str = "center") -> Image.Image:
     """把角色图贴到画面底部居中，带轻微浮动 + 摇摆 + 呼吸缩放 + 柔影。
 
     只做上下浮动会像贴纸；加一点摇摆和呼吸，才像"站在那儿"。
@@ -107,7 +108,12 @@ def place(frame: Image.Image, path: Path, t: float = 0.0,
                                expand=True, fillcolor=(0, 0, 0, 0))
 
     dy = int(math_sin(t * 1.7) * bob)
-    x = (frame.width - sprite.width) // 2
+    if align == "left":
+        x = int(frame.width * 0.05)
+    elif align == "right":
+        x = frame.width - sprite.width - int(frame.width * 0.05)
+    else:
+        x = (frame.width - sprite.width) // 2
     y = frame.height - sprite.height - bottom + dy
 
     base = frame.convert("RGBA")

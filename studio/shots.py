@@ -384,14 +384,19 @@ def _caption(d, spec, t, dur, y: float):
 
 
 def _band(frame: Image.Image, top: int, bottom: int, alpha: int = 155, blur: int = 60) -> Image.Image:
-    """文字底下的柔边暗带。图片可能是亮的，白字直接压上去会糊。"""
+    """文字底下的柔边压暗带。浅色主题下换成压白，否则会糊一大块黑。"""
     w, h = frame.size
+    light = getattr(th, "CURRENT", "dark") == "light"
     mask = Image.new("L", (w, h), 0)
-    ImageDraw.Draw(mask).rectangle([0, top, w, bottom], fill=alpha)
+    ImageDraw.Draw(mask).rectangle([0, top, w, bottom], fill=int(alpha * (0.55 if light else 1)))
     mask = mask.filter(ImageFilter.GaussianBlur(blur))
     layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    layer.putalpha(mask)
-    return Image.alpha_composite(frame.convert("RGBA"), layer).convert("RGB")
+    if light:
+        solid = Image.new("RGBA", (w, h), (255, 255, 255, 255))   # 白底：提亮而不是压暗
+    else:
+        solid = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+    solid.putalpha(mask)
+    return Image.alpha_composite(frame.convert("RGBA"), solid).convert("RGB")
 
 
 def art(base, t, dur, spec, assets):
@@ -451,7 +456,8 @@ def char(base, t, dur, spec, assets):
 
     frame = character.place(base.convert("RGB"), Path(path), t,
                             float(spec.get("height", 0.54)),
-                            int(spec.get("bottom", 70)))
+                            int(spec.get("bottom", 70)),
+                            align=spec.get("pos", "center"))
     cy = float(spec.get("caption_y", 0.30))
     frame = _band(frame, int(th.H * (cy - 0.08)), int(th.H * (cy + 0.26)),
                   int(spec.get("band", 170)))
@@ -495,10 +501,16 @@ def steps(base, t, dur, spec, assets):
         cy = top + gap * i
         r = 26 * (0.7 + 0.3 * k)
 
-        # 节点
-        fill_c = th.ACCENT + (255,) if done else (34, 38, 46, 255)
+        # 节点：已完成=实心强调色，未完成=卡片色（浅色主题下不能用深色，会像黑洞）
+        if done:
+            fill_c = th.ACCENT + (255,)
+            edge_c = th.ACCENT + (255,)
+        else:
+            fill_c = th.CARD + (255,)
+            edge_c = th.BORDER + (255,)
         d.ellipse([x_nodes - r, cy - r, x_nodes + r, cy + r], fill=fill_c,
-                  outline=th.ACCENT + (200,), width=3)
+                  outline=edge_c, width=3)
+        num_c = th.ACCENT if done else th.INK
         if done:
             # 用线段画勾：字体里没有 ✓ 字形，直接打字符会变成豆腐块
             d.line([(x_nodes - r * 0.45, cy + r * 0.02),
@@ -507,7 +519,7 @@ def steps(base, t, dur, spec, assets):
                     (x_nodes + r * 0.48, cy - r * 0.34)], fill=(18, 18, 20, 255), width=7)
         else:
             d.text((x_nodes, cy), str(i + 1), font=th.font(int(r * 1.1), bold=True),
-                   fill=th.INK + (220,), anchor="mm")
+                   fill=num_c + (220,), anchor="mm")
 
         # 标题与补充：两行之间留足行距，别叠在一起
         a = int(255 * mo.clamp(k))
@@ -617,6 +629,114 @@ def quote(base, t, dur, spec, assets):
     return _blend(base, ov)
 
 
+def _card(d, box, radius=24, fill=None, shadow=True, border=True):
+    """带柔影的卡片。浅色底上没有阴影会糊成一片。"""
+    x0, y0, x1, y1 = box
+    if shadow:
+        d.rounded_rectangle([x0 + 6, y0 + 10, x1 + 6, y1 + 10], radius=radius,
+                            fill=(0, 0, 0, 26))
+    d.rounded_rectangle(box, radius=radius, fill=fill or th.CARD + (255,),
+                        outline=th.BORDER + (255,) if border else None, width=2)
+
+
+def layers(base, t, dur, spec, assets):
+    """层叠图：从下往上摞起的卡片。参照片里「一切皆插件」就是这种结构。"""
+    ov, d = _overlay(base)
+    items = (spec.get("items") or [])[:4]
+    title = spec.get("title")
+    if title:
+        a = int(255 * mo.progress(t, 0.0, 0.3))
+        d.text((th.TEXT_X, th.H * 0.22), title, font=th.font(54, bold=True),
+               fill=th.INK + (a,))
+
+    n = max(1, len(items))
+    cw, ch = 640, 128
+    gap = 26
+    bottom = th.H * 0.66
+    for i, it in enumerate(items):
+        k = mo.ease_out_back(mo.progress(t, 0.2 + i * 0.18, 0.2 + i * 0.18 + 0.45), 1.5)
+        if k <= 0:
+            continue
+        idx = n - 1 - i                      # 从下往上摞
+        w = cw - idx * 46
+        y = bottom - idx * (ch + gap) - 90
+        x0 = (th.W - w) // 2
+        rise = int(40 * (1 - mo.clamp(k)))
+        box = [x0, y + rise, x0 + w, y + ch + rise]
+        _card(d, box)
+        label = str(it.get("title", "") if isinstance(it, dict) else it)
+        d.text((th.W // 2, (box[1] + box[3]) // 2), label,
+               font=th.font(46, bold=True), fill=th.INK + (255,), anchor="mm")
+        # 左侧色条，标出层级
+        d.rounded_rectangle([box[0] + 18, box[1] + 24, box[0] + 26, box[3] - 24],
+                            radius=4, fill=th.ACCENT + (255,))
+    return _blend(base, ov)
+
+
+def chips(base, t, dur, spec, assets):
+    """标签行：一排小胶囊依次弹出。用于列关键词、分类、卖点。"""
+    ov, d = _overlay(base)
+    items = (spec.get("items") or [])[:8]
+    title = spec.get("title")
+    if title:
+        a = int(255 * mo.progress(t, 0.0, 0.3))
+        d.text((th.TEXT_X, th.H * 0.34), title, font=th.font(52, bold=True),
+               fill=th.INK + (a,))
+
+    fnt = th.font(42, bold=True)
+    x, y = th.TEXT_X, th.H * 0.44
+    for i, it in enumerate(items):
+        text = str(it)
+        w = int(fnt.getlength(text)) + 52
+        if x + w > th.W - th.TEXT_X:
+            x, y = th.TEXT_X, y + 92
+        a = mo.clamp((t - 0.15 - i * 0.08) / 0.25)
+        if a <= 0:
+            continue
+        grow = 0.9 + 0.1 * mo.ease_out_back(a, 2.0)
+        hw, hh = w * grow / 2, 54 * grow
+        cx, cy = x + w / 2, y + 54
+        d.rounded_rectangle([cx - hw, cy - hh, cx + hw, cy + hh], radius=int(hh),
+                            fill=th.CARD + (int(255 * a),),
+                            outline=th.ACCENT + (int(255 * a),), width=3)
+        d.text((cx, cy), text, font=fnt, fill=th.INK + (int(255 * a),), anchor="mm")
+        x += w + 20
+    return _blend(base, ov)
+
+
+def cards(base, t, dur, spec, assets):
+    """卡片网格：2×2 或 1×3，每张一个要点。"""
+    ov, d = _overlay(base)
+    items = (spec.get("items") or [])[:4]
+    title = spec.get("title")
+    if title:
+        a = int(255 * mo.progress(t, 0.0, 0.3))
+        d.text((th.TEXT_X, th.H * 0.22), title, font=th.font(54, bold=True),
+               fill=th.INK + (a,))
+
+    cols = 2 if len(items) > 2 else len(items) or 1
+    rows = (len(items) + cols - 1) // cols
+    gap = 26
+    cw = (th.W - th.TEXT_X * 2 - gap * (cols - 1)) // cols
+    ch = 250
+    top = th.H * 0.34
+    for i, it in enumerate(items):
+        a = mo.clamp((t - 0.15 - i * 0.14) / 0.35)
+        if a <= 0:
+            continue
+        r, c = divmod(i, cols)
+        x0 = th.TEXT_X + c * (cw + gap)
+        y0 = top + r * (ch + gap) + int(26 * (1 - mo.ease_out_cubic(a)))
+        _card(d, [x0, y0, x0 + cw, y0 + ch])
+        obj = it if isinstance(it, dict) else {"title": str(it)}
+        d.text((x0 + 30, y0 + 40), str(obj.get("title", ""))[:10],
+               font=th.font(48, bold=True), fill=th.INK + (int(255 * a),))
+        if obj.get("desc"):
+            d.text((x0 + 30, y0 + 116), str(obj["desc"])[:16],
+                   font=th.font(32, bold=False), fill=th.MUTED + (int(255 * a),))
+    return _blend(base, ov)
+
+
 def cta(base, t, dur, spec, assets):
     """收尾：一句行动指令 + 账号名。慢推进制造收束感。"""
     ov, d = _overlay(base)
@@ -659,6 +779,9 @@ SHOTS = {
     "meter": meter,
     "price": price,
     "quote": quote,
+    "layers": layers,
+    "chips": chips,
+    "cards": cards,
     "cta": cta,
 }
 

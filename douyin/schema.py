@@ -16,6 +16,9 @@ SHOT_FIELDS = {
     "meter": ["value", "max", "label", "verdict"],
     "price": ["now", "old", "note", "unit"],
     "quote": ["text", "who", "size"],
+    "layers": ["items", "title"],
+    "chips": ["items", "title"],
+    "cards": ["items", "title"],
     "split": ["a", "b", "tag"],
     "line": ["a", "b"],
     "reveal": ["name", "image", "labels", "placeholder"],
@@ -23,7 +26,8 @@ SHOT_FIELDS = {
     "art": ["image", "prompt", "prompt_spec", "gen_size", "style", "style_keyword",
             "focus", "caption_y", "kicker", "text", "sub"],
     "broll": ["video", "kicker", "text", "sub", "scrim"],
-    "char": ["action", "characters", "height", "bottom", "caption_y", "kicker", "text", "sub", "band"],
+    "char": ["action", "characters", "height", "bottom", "pos", "caption_y",
+             "kicker", "text", "sub", "band"],
     "cta": ["text", "sub", "user"],
 }
 

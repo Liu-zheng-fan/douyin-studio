@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 # ------------------------------------------------------------------ canvas
 W, H = 1080, 1920
@@ -32,6 +32,45 @@ ACCENT_2 = (255, 92, 92)         # 警示/对比
 STEEL_HI = (233, 237, 240)
 STEEL_LO = (86, 93, 101)
 
+# 浅色主题：参照片（大肥鱼那类图解视频）用的就是浅底 + 深字 + 彩色卡片
+LIGHT = {
+    "BG": (247, 245, 239),
+    "BG_SOFT": (255, 255, 255),
+    "INK": (26, 26, 28),
+    "MUTED": (108, 112, 120),
+    "ACCENT": (255, 138, 61),
+    "ACCENT_2": (226, 74, 74),
+    "CARD": (255, 255, 255),
+    "BORDER": (223, 218, 208),
+}
+DARK = {
+    "BG": (10, 11, 13), "BG_SOFT": (22, 24, 28),
+    "INK": (246, 244, 239), "MUTED": (140, 146, 154),
+    "ACCENT": (255, 214, 102), "ACCENT_2": (255, 92, 92),
+    "CARD": (24, 26, 31), "BORDER": (52, 56, 64),
+}
+
+CURRENT = "dark"
+
+
+def use(name: str = "dark") -> None:
+    """切换整套配色。渲染开始前调用一次，之后所有 th.XXX 都跟着变。"""
+    global BG, BG_SOFT, INK, MUTED, ACCENT, ACCENT_2, CARD, BORDER, CURRENT
+    pal = LIGHT if name == "light" else DARK
+    BG = pal["BG"]
+    BG_SOFT = pal["BG_SOFT"]
+    INK = pal["INK"]
+    MUTED = pal["MUTED"]
+    ACCENT = pal["ACCENT"]
+    ACCENT_2 = pal["ACCENT_2"]
+    CARD = pal["CARD"]
+    BORDER = pal["BORDER"]
+    CURRENT = "light" if name == "light" else "dark"
+
+
+CARD = DARK["CARD"]
+BORDER = DARK["BORDER"]
+
 FONT_BOLD = "C:/Windows/Fonts/msyhbd.ttc"
 FONT_REG = "C:/Windows/Fonts/msyh.ttc"
 
@@ -46,10 +85,23 @@ def backdrop(variant: str = "dark") -> Image.Image:
     base = Image.new("RGB", (W, H), BG)
     if variant == "flat":
         return base
+    if CURRENT == "light":
+        # 纸感：极淡的斜纹 + 中心微亮，避免大块死白
+        layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        d = ImageDraw.Draw(layer)
+        for y in range(-H, H * 2, 64):
+            d.line([(0, y), (W, y + W * 0.35)], fill=(0, 0, 0, 6), width=2)
+        glow = Image.new("L", (W, H), 0)
+        gd = ImageDraw.Draw(glow)
+        gd.ellipse([-W * 0.2, H * 0.1, W * 1.2, H * 0.9], fill=90)
+        glow = glow.filter(ImageFilter.GaussianBlur(200))
+        paper = Image.new("RGB", (W, H), (255, 253, 246))
+        base = Image.composite(paper, base, glow)
+        return Image.alpha_composite(base.convert("RGBA"), layer).convert("RGB")
+
     glow = Image.new("L", (W, H), 0)
     d = ImageDraw.Draw(glow)
     d.ellipse([-W * 0.3, H * 0.18, W * 1.3, H * 0.95], fill=58)
-    from PIL import ImageFilter
     glow = glow.filter(ImageFilter.GaussianBlur(220))
     warm = Image.new("RGB", (W, H), (28, 28, 32))
     return Image.composite(warm, base, glow)
@@ -123,6 +175,8 @@ def draw_subtitle(canvas: Image.Image, text: str, y: int = 1430) -> None:
     if not text:
         return
     fnt = font(58, bold=True)
+    if CURRENT == "light":
+        fnt = font(56, bold=True)
     lines = wrap(text, fnt, TEXT_MAX_W)
     if len(lines) > 2:
         lines = [lines[0], "".join(lines[1:])]
@@ -132,9 +186,12 @@ def draw_subtitle(canvas: Image.Image, text: str, y: int = 1430) -> None:
     d = ImageDraw.Draw(overlay)
     lh = int(fnt.size * 1.28)
     top = y - (len(lines) - 1) * lh // 2
+    # 浅色底上用深字 + 白描边，深色底上反过来——否则字幕直接看不见
+    ink = (18, 18, 20, 255) if CURRENT == "light" else (255, 255, 255, 255)
+    stroke = (255, 255, 255, 235) if CURRENT == "light" else (0, 0, 0, 235)
     for i, line in enumerate(lines):
-        d.text((W // 2, top + i * lh), line, font=fnt, fill=(255, 255, 255, 255),
-               anchor="mm", stroke_width=6, stroke_fill=(0, 0, 0, 235))
+        d.text((W // 2, top + i * lh), line, font=fnt, fill=ink,
+               anchor="mm", stroke_width=6, stroke_fill=stroke)
     merged = Image.alpha_composite(canvas.convert("RGBA"), overlay).convert("RGB")
     canvas.paste(merged, (0, 0))
 

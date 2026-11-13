@@ -79,6 +79,7 @@ def render_frames(script: dict, durations, starts, subs, frames_dir: Path, asset
 
     fps = int(script.get("fps", th.FPS))
     variant = script.get("backdrop", "dark")
+    th.use(script.get("theme", "dark"))     # 深色 / 浅色两套配色
     sub_y = int(script.get("subtitle_y", 1430))
     field = script.get("field")            # noise / dots / particles / flow
     drift = float(script.get("drift", 0.012))   # 每镜缓慢推近的幅度，0 关闭
